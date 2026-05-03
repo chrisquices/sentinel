@@ -3,6 +3,7 @@
     import Topbar from '$lib/components/ui/Topbar.svelte';
     import System from './pages/System.svelte';
     import Queue from './pages/Queue.svelte';
+    import Scheduler from './pages/Scheduler.svelte';
     import {fetchSystem, fetchQueue} from '$lib/api';
 
     interface Props {
@@ -39,10 +40,11 @@
 </script>
 
 <div class="min-h-screen transition-colors duration-200">
-    <div class="absolute inset-0 -z-10" style="background: linear-gradient(150deg, #050000 0%, #0d0000 20%, #1a000a 40%, #2d0000 60%, #3d0015 80%, #1f000b 100%);"></div>
+    <div class="absolute inset-0 -z-10" style="background: linear-gradient(150deg, #050000 0%, #0d0000 20%, #170000 40%, #2d0000 60%, #3d0015 80%, #1f000b 100%);"></div>
     <Topbar {isDark} {toggleTheme} {projectName} />
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
         <System initialData={systemData} />
+        <Scheduler initialData={systemData} />
         <Queue initialData={queueData} />
     </main>
 </div>

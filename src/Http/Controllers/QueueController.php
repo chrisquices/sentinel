@@ -4,26 +4,10 @@ namespace Chrisquices\VulcanSentinel\Http\Controllers;
 
 use Chrisquices\VulcanSentinel\Services\QueueService;
 use Illuminate\Routing\Controller;
-use Chrisquices\VulcanSentinel\Services\SystemService;
 
-class SentinelController extends Controller
+class QueueController extends Controller
 {
-    public function index()
-    {
-        SystemService::forgetCpuHistory();
-
-        return view('vulcan-sentinel::app', [
-            'system' => SystemService::get(),
-            'queue' => QueueService::get(),
-        ]);
-    }
-
-    public function system()
-    {
-        return response()->json(SystemService::get());
-    }
-
-    public function queue()
+    public function show()
     {
         return response()->json(QueueService::get());
     }
@@ -57,5 +41,4 @@ class SentinelController extends Controller
         $success = QueueService::clearFailedJobs();
         return response()->json(['success' => $success]);
     }
-
 }

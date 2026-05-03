@@ -1,37 +1,38 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Chrisquices\VulcanSentinel\Http\Controllers\SentinelController;
+use Chrisquices\VulcanSentinel\Http\Controllers\QueueController;
+use Chrisquices\VulcanSentinel\Http\Controllers\SystemController;
 
 Route::group([
     'prefix' => config('vulcan-sentinel.path', 'vulcan-sentinel'),
     'middleware' => config('vulcan-sentinel.middleware', ['web']),
     'as' => 'vulcan-sentinel.',
 ], function () {
-    Route::get('/', [SentinelController::class, 'index'])->name('index');
+    Route::get('/', [SystemController::class, 'index'])->name('index');
 
     Route::prefix('api')->name('api.')->group(function () {
 
         // System
         Route::prefix('system')->name('system.')->group(function () {
-            Route::get('/', [SentinelController::class, 'system'])->name('index');
+            Route::get('/', [SystemController::class, 'show'])->name('show');
         });
 
         // Queue
         Route::prefix('queue')->name('queue.')->group(function () {
-            Route::get('/', [SentinelController::class, 'queue'])->name('index');
+            Route::get('/', [QueueController::class, 'show'])->name('show');
 
             // Completed Jobs
             Route::prefix('completed')->name('completed.')->group(function () {
-                Route::delete('/clear', [SentinelController::class, 'clearCompletedJobs'])->name('clear');
-                Route::delete('/{id}', [SentinelController::class, 'deleteCompletedJob'])->name('delete');
+                Route::delete('/clear', [QueueController::class, 'clearCompletedJobs'])->name('clear');
+                Route::delete('/{id}', [QueueController::class, 'deleteCompletedJob'])->name('delete');
             });
 
             // Failed Jobs
             Route::prefix('failed')->name('failed.')->group(function () {
-                Route::delete('/clear', [SentinelController::class, 'clearFailedJobs'])->name('clear');
-                Route::post('/{id}/retry', [SentinelController::class, 'retryFailedJob'])->name('retry');
-                Route::delete('/{id}', [SentinelController::class, 'deleteFailedJob'])->name('delete');
+                Route::delete('/clear', [QueueController::class, 'clearFailedJobs'])->name('clear');
+                Route::post('/{id}/retry', [QueueController::class, 'retryFailedJob'])->name('retry');
+                Route::delete('/{id}', [QueueController::class, 'deleteFailedJob'])->name('delete');
             });
         });
     });
