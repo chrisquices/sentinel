@@ -4,6 +4,7 @@ namespace Chrisquices\VulcanSentinel;
 
 use Illuminate\Support\ServiceProvider;
 use Chrisquices\VulcanSentinel\Console\Commands\SentinelWatchCommand;
+use Illuminate\Console\Events\ScheduledTaskFinished;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\Facades\Event;
 
@@ -32,6 +33,10 @@ class VulcanSentinelServiceProvider extends ServiceProvider
 
         Event::listen(JobProcessed::class, function (JobProcessed $event) {
             \Chrisquices\VulcanSentinel\Services\QueueService::recordCompletedJob($event);
+        });
+
+        Event::listen(ScheduledTaskFinished::class, function (ScheduledTaskFinished $event) {
+            \Chrisquices\VulcanSentinel\Services\SchedulerService::recordRun($event);
         });
     }
 

@@ -2,237 +2,83 @@
 
 namespace Chrisquices\VulcanSentinel\Services;
 
-use Chrisquices\VulcanSentinel\Helpers\QueueHelper;
-use Illuminate\Support\Facades\Cache;
+use Chrisquices\VulcanSentinel\Helpers\SchedulerHelper;
+use Illuminate\Console\Events\ScheduledTaskFinished;
+use Illuminate\Console\Scheduling\CallbackEvent;
+use Illuminate\Console\Scheduling\Event;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redis;
-use Illuminate\Support\Facades\Artisan;
 
 class SchedulerService
 {
-    public static function get(): array
+    public static function getEvents(): array
     {
-        $summary = self::getSummary();
-        $jobs = self::getJobs();
+        try {
+            $kernel = app(\Illuminate\Contracts\Console\Kernel::class);
+            $kernel->bootstrap();
+            $schedule = app(Schedule::class);
 
-        return [
-            'summary' => $summary,
-            'jobs' => $jobs,
-        ];
-    }
-
-    // region --- Summary ----------------------------------------------------------------------------------------------
-    public static function getSummary(): array
-    {
-        return [
-            'pending' => self::getPendingCount(),
-            'processing' => self::getProcessingCount(),
-            'completed' => self::getCompletedCount(),
-            'failed' => self::getFailedCount(),
-        ];
-    }
-
-    public static function getPendingCount(): int
-    {
-        $driver = config('queue.default');
-
-        if ($driver === 'redis') {
-            $connection = config('queue.connections.redis.queue', 'default');
-            return (int)Redis::llen("queues:{$connection}");
+        } catch (\Throwable) {
+            return ['events' => []];
         }
 
-        return DB::table('jobs')->whereNull('reserved_at')->count();
-    }
+        $events = [];
 
-    public static function getProcessingCount(): int
-    {
-        $driver = config('queue.default');
+        foreach ($schedule->events() as $event) {
+            $command = self::resolveCommand($event);
 
-        if ($driver === 'redis') {
-            $connection = config('queue.connections.redis.queue', 'default');
-            return (int)Redis::llen("queues:{$connection}:reserved");
-        }
+            $lastRun = DB::table('vulcan_sentinel_scheduler_runs')
+                ->where('command', $command)
+                ->orderByDesc('ran_at')
+                ->first();
 
-        return DB::table('jobs')->whereNotNull('reserved_at')->count();
-    }
+            $nextRun = $event->nextRunDate();
 
-    public static function getCompletedCount(): int
-    {
-        return DB::table('vulcan_sentinel_completed_jobs')->count();
-    }
-
-    public static function getFailedCount(): int
-    {
-        return DB::table('failed_jobs')->count();
-    }
-
-    // endregion
-
-    // region --- Jobs -------------------------------------------------------------------------------------------------
-    public static function getJobs(): array
-    {
-        $driver = config('queue.default');
-        $jobs = [];
-
-        // Pending & Processing
-        if ($driver === 'redis') {
-            $queue = config('queue.connections.redis.queue', 'default');
-
-            $pending = Redis::lrange("queues:{$queue}", 0, -1) ?: [];
-            foreach ($pending as $raw) {
-                $payload = json_decode($raw, true);
-                $jobs[] = [
-                    'id' => $payload['uuid'] ?? null,
-                    'jobClass' => $payload['data']['commandName'] ?? $payload['job'] ?? 'Unknown',
-                    'displayName' => $payload['displayName'] ?? 'Unknown',
-                    'queue' => $queue,
-                    'status' => 'pending',
-                    'attempts' => $payload['attempts'] ?? 0,
-                    'createdAt' => null,
-                    'createdAtFormatted' => '—',
-                ];
-            }
-
-            $reserved = Redis::lrange("queues:{$queue}:reserved", 0, -1) ?: [];
-            foreach ($reserved as $raw) {
-                $payload = json_decode($raw, true);
-                $jobs[] = [
-                    'id' => $payload['uuid'] ?? null,
-                    'jobClass' => $payload['data']['commandName'] ?? $payload['job'] ?? 'Unknown',
-                    'displayName' => $payload['displayName'] ?? 'Unknown',
-                    'queue' => $queue,
-                    'status' => 'processing',
-                    'attempts' => $payload['attempts'] ?? 0,
-                    'createdAt' => null,
-                    'createdAtFormatted' => '—',
-                ];
-            }
-        } else {
-            $pending = DB::table('jobs')->orderByDesc('created_at')->get();
-            foreach ($pending as $job) {
-                $payload = QueueHelper::decodePayload($job->payload);
-                $jobs[] = [
-                    'id' => $job->uuid ?? $job->id,
-                    'jobClass' => $payload['class'],
-                    'displayName' => $payload['displayName'],
-                    'queue' => $job->queue,
-                    'status' => is_null($job->reserved_at) ? 'pending' : 'processing',
-                    'attempts' => $job->attempts,
-                    'createdAt' => $job->created_at,
-                    'createdAtFormatted' => QueueHelper::formatDateTime(date('Y-m-d H:i:s', $job->created_at)),
-                ];
-            }
-        }
-
-        // Completed
-        $completed = DB::table('vulcan_sentinel_completed_jobs')->orderByDesc('completed_at')->get();
-        foreach ($completed as $job) {
-            $jobs[] = [
-                'id' => $job->id,
-                'jobClass' => $job->job_class,
-                'displayName' => $job->display_name,
-                'queue' => $job->queue,
-                'status' => 'completed',
-                'attempts' => $job->attempts,
-                'createdAt' => $job->completed_at,
-                'createdAtFormatted' => QueueHelper::formatDateTime($job->completed_at),
-                'runTime' => $job->run_time,
-                'runTimeFormatted' => $job->run_time ? $job->run_time . 'ms' : '—',
+            $events[] = [
+                'command'         => $command,
+                'expression'      => $event->expression,
+                'expressionLabel' => SchedulerHelper::humanCron($event->expression),
+                'nextRun'         => $nextRun->toIso8601String(),
+                'lastRanAt'       => $lastRun?->ran_at,
+                'exitCode'        => $lastRun?->exit_code,
+                'status'          => self::resolveStatus($lastRun),
             ];
         }
 
-        // Failed
-        $failed = DB::table('failed_jobs')->orderByDesc('failed_at')->get();
-        foreach ($failed as $job) {
-            $payload = QueueHelper::decodePayload($job->payload);
-            $jobs[] = [
-                'id' => $job->uuid ?? $job->id,
-                'jobClass' => $payload['class'],
-                'displayName' => $payload['displayName'],
-                'queue' => $job->queue,
-                'status' => 'failed',
-                'attempts' => $payload['attempts'],
-                'createdAt' => $job->failed_at,
-                'createdAtFormatted' => QueueHelper::formatDateTime($job->failed_at),
-                'exception' => QueueHelper::truncateException($job->exception),
-                'exceptionFull' => $job->exception,
-            ];
-        }
-
-        return $jobs;
+        return ['events' => $events];
     }
 
-    public static function recordCompletedJob(object $event): void
+    public static function recordRun(ScheduledTaskFinished $event): void
     {
-        $job = $event->job;
-        $payload = $job->payload();
-
-        DB::table('vulcan_sentinel_completed_jobs')->insert([
-            'uuid'         => $payload['uuid'] ?? null,
-            'connection'   => $job->getConnectionName(),
-            'queue'        => $job->getQueue(),
-            'job_class'    => $payload['data']['commandName'] ?? $payload['job'] ?? 'Unknown',
-            'display_name' => $payload['displayName'] ?? 'Unknown',
-            'attempts'     => $job->attempts(),
-            'run_time'     => isset($payload['pushedAt']) ? (int)((microtime(true) - $payload['pushedAt']) * 1000) : null,
-            'completed_at' => now(),
+        DB::table('vulcan_sentinel_scheduler_runs')->insert([
+            'command'   => self::resolveCommand($event->task),
+            'ran_at'    => now(),
+            'exit_code' => $event->task->exitCode,
         ]);
     }
 
-    // endregion
+    // region --- Helpers --------------------------------------------------------------------------------------------------
 
-    // region --- Completed Jobs ---------------------------------------------------------------------------------------
-    public static function deleteCompletedJob(string $id): bool
+    private static function resolveCommand(Event $event): string
     {
-        try {
-            DB::table('vulcan_sentinel_completed_jobs')->where('id', $id)->delete();
-            return true;
-        } catch (\Exception $e) {
-            return false;
+        if ($event instanceof CallbackEvent) {
+            return $event->description ?: '{Closure}';
         }
+
+        $cmd = $event->command ?? '';
+
+        if (preg_match('/artisan\s+(.+)/', $cmd, $m)) {
+            return 'artisan ' . trim($m[1]);
+        }
+
+        return trim($cmd) ?: '{Command}';
     }
 
-    public static function clearCompletedJobs(): bool
+    private static function resolveStatus(?object $lastRun): string
     {
-        try {
-            DB::table('vulcan_sentinel_completed_jobs')->truncate();
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
+        if (!$lastRun) return 'never';
+        return $lastRun->exit_code === 0 || $lastRun->exit_code === null ? 'success' : 'failed';
     }
 
-    // endregion
-
-    // region --- Failed Jobs ------------------------------------------------------------------------------------------
-    public static function retryFailedJob(string $id): bool
-    {
-        try {
-            Artisan::call('queue:retry', ['id' => [$id]]);
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-
-    public static function deleteFailedJob(string $id): bool
-    {
-        try {
-            Artisan::call('queue:forget', ['id' => [$id]]);
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-
-    public static function clearFailedJobs(): bool
-    {
-        try {
-            Artisan::call('queue:flush');
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
     // endregion
 }

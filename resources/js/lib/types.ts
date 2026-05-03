@@ -38,6 +38,21 @@ export interface Storage {
     availableFormatted: string;
 }
 
+// Scheduler
+export interface SchedulerData {
+    events: SchedulerTask[];
+}
+
+export interface SchedulerTask {
+    command: string;
+    expression: string;
+    expressionLabel: string;
+    nextRun: string;
+    lastRanAt: string | null;
+    exitCode: number | null;
+    status: 'never' | 'success' | 'failed';
+}
+
 // Queue
 export interface QueueData {
     summary: QueueSummary;
