@@ -11,6 +11,8 @@
             basePath: @json(config('vulcan-sentinel.path', 'vulcan-sentinel')),
             csrfToken: @json(csrf_token()),
             system: @json($system),
+            scheduler: @json($scheduler),
+            queue: @json($queue),
         };
     </script>
     <link rel="stylesheet" href="{{ asset('vendor/vulcan-sentinel/assets/app.css') }}">

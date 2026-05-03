@@ -14,8 +14,8 @@
 
     let isDark = $state(false);
     let systemData = $state<any>(null);
-    let schedulerData = $state<any>(null);
-    let queueData = $state<any>(null);
+    let schedulerData = $state<any>(window.__vulcanSentinel?.scheduler ?? null);
+    let queueData = $state<any>(window.__vulcanSentinel?.queue ?? null);
 
     function toggleTheme(): void {
         isDark = !isDark;

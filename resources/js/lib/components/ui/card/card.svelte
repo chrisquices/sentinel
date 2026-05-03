@@ -17,7 +17,7 @@
 	bind:this={ref}
 	data-slot="card"
 	data-size={size}
-	class={cn("bg-card text-card-foreground overflow-hidden rounded-lg border border-border group/card flex flex-col", className)}
+	class={cn("bg-card text-card-foreground overflow-hidden rounded-lg border border-border group/card flex flex-col shadow-2xl", className)}
 	{...restProps}
 >
 	{@render children?.()}

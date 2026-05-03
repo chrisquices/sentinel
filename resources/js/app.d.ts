@@ -4,6 +4,9 @@ declare global {
             projectName: string;
             basePath: string;
             csrfToken: string;
+            system?: unknown;
+            scheduler?: unknown;
+            queue?: unknown;
         };
     }
 }
