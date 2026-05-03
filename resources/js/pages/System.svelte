@@ -5,6 +5,13 @@
     import type {SystemData} from '$lib/types';
     import Chart from 'chart.js/auto';
 
+    interface Props {
+        initialData?: any;
+        class?: string;
+    }
+
+    let {initialData: _initialData = null, class: className = ''}: Props = $props();
+
     // region --- General ----------------------------------------------------------------------------------------------
     const path = (window as any).__vulcanSentinel?.basePath ?? 'vulcan-sentinel';
 
@@ -114,67 +121,64 @@
     // endregion
 </script>
 
-<section>
+<section class={className}>
     <h2 class="font-semibold text-foreground mb-4">System</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
 
-        <!-- System -->
-        <Card.Root>
-            <Card.Header>
+    <!-- System -->
+    <Card.Root>
+        <Card.Header>
 
-                <!-- CPU / CPU Cores / CPU Usage -->
-                <div class="flex items-center justify-between w-full">
-                    <div class="flex items-center gap-2">
-                        <Cpu class="w-4 h-4 text-primary"/>
-                        <span class="font-medium text-card-foreground">
-                            CPU ({systemData?.cpu.cores ?? '—'} {systemData?.cpu.cores === 1 ? 'core' : 'cores'})
-                        </span>
-                    </div>
-                    <span class="font-bold text-card-foreground">{systemData?.cpu.usageFormatted ?? '—'}</span>
+            <!-- CPU / CPU Cores / CPU Usage -->
+            <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2">
+                    <Cpu class="w-4 h-4 text-primary"/>
+                    <span class="font-medium text-card-foreground">
+                        CPU ({systemData?.cpu.cores ?? '—'} {systemData?.cpu.cores === 1 ? 'core' : 'cores'})
+                    </span>
                 </div>
-            </Card.Header>
+                <span class="font-bold text-card-foreground">{systemData?.cpu.usageFormatted ?? '—'}</span>
+            </div>
+        </Card.Header>
 
-            <Card.Content class="p-6 h-full">
+        <Card.Content class="p-6 h-full">
 
-                <!-- CPU History Chart -->
-                <div class="h-24 mb-2 relative">
-                    <canvas bind:this={canvas} class="rounded-xl"></canvas>
-                    <div
-                            bind:this={tooltipEl}
-                            class="pointer-events-none w-44 fixed z-50 opacity-0 gap-4 transition-opacity bg-card border border-border rounded-md px-4 py-4 shadow-md -translate-x-1/2 -translate-y-full"
-                    ></div>
-                </div>
+            <!-- CPU History Chart -->
+            <div class="h-24 mb-2 relative">
+                <canvas bind:this={canvas} class="rounded-xl"></canvas>
+                <div
+                        bind:this={tooltipEl}
+                        class="pointer-events-none w-44 fixed z-50 opacity-0 gap-4 transition-opacity bg-card border border-border rounded-md px-4 py-4 shadow-md -translate-x-1/2 -translate-y-full"
+                ></div>
+            </div>
 
-                <div class="space-y-6">
+            <div class="space-y-6">
 
-                    <!-- Memory -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-muted-foreground">
-                            <span>RAM</span>
-                            <span>{systemData?.memory.usedFormatted ?? '—'}
-                                / {systemData?.memory.totalFormatted ?? '—'}</span>
-                        </div>
-                        <div class="w-full bg-muted rounded-full h-1.5">
-                            <div class="bg-primary h-1.5 rounded-full"
-                                 style="width: {systemData ? (systemData.memory.used / systemData.memory.total * 100) : 0}%"></div>
-                        </div>
+                <!-- Memory -->
+                <div class="space-y-1">
+                    <div class="flex justify-between text-muted-foreground">
+                        <span>RAM</span>
+                        <span>{systemData?.memory.usedFormatted ?? '—'}
+                            / {systemData?.memory.totalFormatted ?? '—'}</span>
                     </div>
-
-                    <!-- Storage -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-muted-foreground">
-                            <span>Storage</span>
-                            <span>{systemData?.storage.usedFormatted ?? '—'}
-                                / {systemData?.storage.totalFormatted ?? '—'}</span>
-                        </div>
-                        <div class="w-full bg-muted rounded-full h-1.5">
-                            <div class="bg-muted-foreground h-1.5 rounded-full"
-                                 style="width: {systemData ? (systemData.storage.used / systemData.storage.total * 100) : 0}%"></div>
-                        </div>
+                    <div class="w-full bg-muted rounded-full h-1.5">
+                        <div class="bg-primary h-1.5 rounded-full"
+                             style="width: {systemData ? (systemData.memory.used / systemData.memory.total * 100) : 0}%"></div>
                     </div>
                 </div>
-            </Card.Content>
-        </Card.Root>
 
-    </div>
+                <!-- Storage -->
+                <div class="space-y-1">
+                    <div class="flex justify-between text-muted-foreground">
+                        <span>Storage</span>
+                        <span>{systemData?.storage.usedFormatted ?? '—'}
+                            / {systemData?.storage.totalFormatted ?? '—'}</span>
+                    </div>
+                    <div class="w-full bg-muted rounded-full h-1.5">
+                        <div class="bg-muted-foreground h-1.5 rounded-full"
+                             style="width: {systemData ? (systemData.storage.used / systemData.storage.total * 100) : 0}%"></div>
+                    </div>
+                </div>
+            </div>
+        </Card.Content>
+    </Card.Root>
 </section>

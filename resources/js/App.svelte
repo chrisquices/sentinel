@@ -2,9 +2,10 @@
     import {onMount} from 'svelte';
     import Topbar from '$lib/components/ui/Topbar.svelte';
     import System from './pages/System.svelte';
+    import Runtime from './pages/Runtime.svelte';
     import Queue from './pages/Queue.svelte';
     import Scheduler from './pages/Scheduler.svelte';
-    import {fetchSystem, fetchQueue, fetchScheduler} from '$lib/api';
+    import {fetchSystem, fetchRuntime, fetchQueue, fetchScheduler} from '$lib/api';
 
     interface Props {
         projectName?: string;
@@ -14,6 +15,7 @@
 
     let isDark = $state(false);
     let systemData = $state<any>(null);
+    let runtimeData = $state<any>(null);
     let schedulerData = $state<any>(window.__vulcanSentinel?.scheduler ?? null);
     let queueData = $state<any>(window.__vulcanSentinel?.queue ?? null);
 
@@ -30,23 +32,28 @@
             document.documentElement.classList.add('dark');
         }
 
-        const [sysResult, schedulerResult, queueResult] = await Promise.allSettled([
+        const [sysResult, runtimeResult, schedulerResult, queueResult] = await Promise.allSettled([
             fetchSystem(),
+            fetchRuntime(),
             fetchScheduler(),
             fetchQueue(),
         ]);
 
         if (sysResult.status === 'fulfilled') systemData = sysResult.value;
+        if (runtimeResult.status === 'fulfilled') runtimeData = runtimeResult.value;
         if (schedulerResult.status === 'fulfilled') schedulerData = schedulerResult.value;
         if (queueResult.status === 'fulfilled') queueData = queueResult.value;
     });
 </script>
 
 <div class="min-h-screen transition-colors duration-200">
-    <div class="absolute inset-0 -z-10" style="background: linear-gradient(150deg, #050000 0%, #0d0000 20%, #170000 40%, #2d0000 60%, #3d0015 80%, #1f000b 100%);"></div>
+    <div class="fixed inset-0 -z-10" style="background: linear-gradient(150deg, #050000 0%, #0d0000 20%, #170000 40%, #2d0000 60%, #3d0015 80%, #1f000b 100%);"></div>
     <Topbar {isDark} {toggleTheme} {projectName} />
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
-        <System initialData={systemData} />
+        <div class="grid grid-cols-1 lg:grid-cols-6 gap-6 items-stretch">
+            <System initialData={systemData} class="lg:col-span-2 h-full" />
+            <Runtime initialData={runtimeData} class="lg:col-span-4 h-full" />
+        </div>
         <Scheduler initialData={schedulerData} />
         <Queue initialData={queueData} />
     </main>

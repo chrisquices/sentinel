@@ -38,6 +38,25 @@ export interface Storage {
     availableFormatted: string;
 }
 
+// Runtime
+export interface RuntimeInfo {
+    phpVersion: string;
+    sapi: string;
+    memoryLimit: string;
+    maxExecutionTime: string;
+    uploadMaxFilesize: string;
+    postMaxSize: string;
+    opcache: OpcacheInfo;
+}
+
+export interface OpcacheInfo {
+    enabled: boolean;
+    hitRatio: number | null;
+    memoryUsed: string | null;
+    memoryFree: string | null;
+    cachedScripts: number | null;
+}
+
 // Scheduler
 export interface SchedulerData {
     events: SchedulerTask[];

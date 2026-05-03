@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Chrisquices\VulcanSentinel\Http\Controllers\QueueController;
+use Chrisquices\VulcanSentinel\Http\Controllers\RuntimeController;
 use Chrisquices\VulcanSentinel\Http\Controllers\SchedulerController;
 use Chrisquices\VulcanSentinel\Http\Controllers\SystemController;
 
@@ -17,6 +18,11 @@ Route::group([
         // System
         Route::prefix('system')->name('system.')->group(function () {
             Route::get('/', [SystemController::class, 'show'])->name('show');
+        });
+
+        // Runtime
+        Route::prefix('runtime')->name('runtime.')->group(function () {
+            Route::get('/', [RuntimeController::class, 'show'])->name('show');
         });
 
         // Scheduler

@@ -16,6 +16,14 @@ export async function fetchSystem(): Promise<unknown> {
 
 // endregion
 
+// region --- Runtime --------------------------------------------------------------------------------------------------
+export async function fetchRuntime(): Promise<unknown> {
+    const res = await fetch(`${base()}/runtime`, {headers: headers()});
+    return res.json();
+}
+
+// endregion
+
 // region --- Scheduler ------------------------------------------------------------------------------------------------
 export async function fetchScheduler(): Promise<unknown> {
     const res = await fetch(`${base()}/scheduler`, {headers: headers()});
