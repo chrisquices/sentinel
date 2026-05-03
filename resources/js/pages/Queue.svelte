@@ -13,7 +13,7 @@
         retryFailedJob,
         deleteCompletedJob,
         deleteFailedJob
-    } from "$lib/api.ts";
+    } from "$lib/api";
 
     interface Props {
         initialData?: QueueData | null;

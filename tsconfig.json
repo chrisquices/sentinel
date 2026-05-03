@@ -9,9 +9,9 @@
         "noEmit": true,
         "verbatimModuleSyntax": true,
         "paths": {
-            "$lib/*": ["./ui/src/lib/*"]
+            "$lib/*": ["./resources/js/lib/*"]
         }
     },
-    "include": ["ui/src/**/*.ts", "ui/src/**/*.d.ts", "ui/src/**/*.svelte"],
+    "include": ["resources/js/**/*.ts", "resources/js/**/*.d.ts", "resources/js/**/*.svelte"],
     "exclude": ["node_modules"]
 }

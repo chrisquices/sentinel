@@ -8,7 +8,7 @@ export default defineConfig({
     publicDir: false,
     resolve: {
         alias: {
-            $lib: fileURLToPath(new URL('./ui/src/lib', import.meta.url)),
+            $lib: fileURLToPath(new URL('./resources/js/lib', import.meta.url)),
         },
     },
     build: {
@@ -16,7 +16,7 @@ export default defineConfig({
         emptyOutDir: true,
         rollupOptions: {
             input: {
-                app: 'ui/src/main.ts',
+                app: 'resources/js/app.ts',
             },
             output: {
                 entryFileNames: 'assets/[name].js',
