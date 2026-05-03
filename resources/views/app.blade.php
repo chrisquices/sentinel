@@ -1,21 +1,24 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('sentinel.project_name', 'My Project') }} — Vulcan Sentinel</title>
+    <title>{{ config('vulcan-sentinel.project_name', 'My Project') }} — Vulcan Sentinel</title>
     <script>
-        window.__sentinel = {
-            projectName: @json(config('sentinel.project_name', 'My Project')),
-            basePath: @json(config('sentinel.path', 'sentinel')),
+        window.__vulcanSentinel = {
+            projectName: @json(config('vulcan-sentinel.project_name', 'My Project')),
+            basePath: @json(config('vulcan-sentinel.path', 'vulcan-sentinel')),
             csrfToken: @json(csrf_token()),
+            system: @json($system),
         };
     </script>
     <link rel="stylesheet" href="{{ asset('vendor/vulcan-sentinel/assets/app.css') }}">
 </head>
-<body>
+<body">
     <div id="app"></div>
     <script type="module" src="{{ asset('vendor/vulcan-sentinel/assets/app.js') }}"></script>
 </body>
 </html>
+
+

@@ -1,12 +1,2 @@
-/** @type {import('tailwindcss').Config} */
-export default {
-    darkMode: 'class',
-    content: [
-        './ui/src/**/*.{html,js,svelte,ts}',
-        './resources/views/**/*.blade.php',
-    ],
-    theme: {
-        extend: {},
-    },
-    plugins: [],
-};
+// Tailwind v4 — configuration lives in app.css via @theme
+export default {};

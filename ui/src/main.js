@@ -1,11 +1,1 @@
-import './app.css';
-import App from './App.svelte';
-
-const app = new App({
-    target: document.getElementById('app'),
-    props: {
-        projectName: window.__sentinel?.projectName ?? 'My Project',
-    },
-});
-
-export default app;
+// Entry point replaced by main.ts

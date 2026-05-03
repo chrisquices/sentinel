@@ -8,6 +8,6 @@ class Sentinel extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return 'sentinel';
+        return 'vulcan-sentinel';
     }
 }

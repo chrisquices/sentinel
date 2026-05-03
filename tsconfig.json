@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "useDefineForClassFields": true,
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "strict": true,
+        "noEmit": true,
+        "verbatimModuleSyntax": true,
+        "paths": {
+            "$lib/*": ["./ui/src/lib/*"]
+        }
+    },
+    "include": ["ui/src/**/*.ts", "ui/src/**/*.d.ts", "ui/src/**/*.svelte"],
+    "exclude": ["node_modules"]
+}
