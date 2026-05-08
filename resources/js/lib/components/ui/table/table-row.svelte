@@ -22,7 +22,7 @@
 <tr bind:this={ref}
     data-slot="table-row"
     data-selected={isSelected || undefined}
-    class={cn("transition-colors duration-75 w-full cursor-pointer", className)}
+    class={cn("transition-colors duration-75 w-full cursor-pointer border-b border-border", className)}
     {...restProps}
 >
     {@render children?.()}

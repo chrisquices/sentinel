@@ -3,12 +3,13 @@
     import * as Select from '$lib/components/ui/select';
     import * as Card from '$lib/components/ui/card';
     import * as Table from '$lib/components/ui/table';
+    import * as Dialog from '$lib/components/ui/dialog';
     import {Badge} from '$lib/components/ui/badge';
     import {Button} from '$lib/components/ui/button';
     import * as ButtonGroup from '$lib/components/ui/button-group';
     import type {LogChannel, LogEntry, LogEntriesResult, LogTailResult} from '$lib/types';
     import {fetchLogEntries, fetchLogTail, clearLog} from '$lib/api';
-    import {ChevronDown, ChevronRight, Trash2} from 'lucide-svelte';
+    import {Trash2} from 'lucide-svelte';
     import { type BadgeVariant } from '$lib/components/ui/badge';
 
     interface Props {
@@ -27,9 +28,9 @@
     let cursor = $state<number | null>(null);
     let hasMore = $state(false);
     let tailCursor = $state(0);
-    let expandedIds = $state(new Set<string>());
     let loading = $state(false);
     let clearing = $state(false);
+    let selectedEntry = $state<LogEntry | null>(null);
 
     $effect(() => {
         if (channels.length > 0 && activeChannel === '') {
@@ -54,7 +55,6 @@
             cursor     = result.cursor;
             hasMore    = result.hasMore;
             tailCursor = result.tailCursor;
-            if (reset) expandedIds = new Set();
         } finally {
             loading = false;
         }
@@ -69,20 +69,9 @@
             cursor     = null;
             hasMore    = false;
             tailCursor = 0;
-            expandedIds = new Set();
         } finally {
             clearing = false;
         }
-    }
-
-    function toggleExpanded(id: string) {
-        const next = new Set(expandedIds);
-        if (next.has(id)) {
-            next.delete(id);
-        } else {
-            next.add(id);
-        }
-        expandedIds = next;
     }
 
     onMount(() => {
@@ -203,10 +192,9 @@
                         </Table.Row>
                     {:else}
                         {#each entries as entry, i}
-                            {@const id = `${entry.timestamp ?? ''}-${i}`}
                             <Table.Row
-                                    class={entry.extra ? 'cursor-pointer' : ''}
-                                    onclick={() => entry.extra && toggleExpanded(id)}
+                                    class="cursor-pointer"
+                                    onclick={() => selectedEntry = entry}
                             >
                                 <!-- Level -->
                                 <Table.Cell>
@@ -234,3 +222,30 @@
         </Card.Content>
     </Card.Root>
 </section>
+
+<Dialog.Root open={selectedEntry !== null} onOpenChange={(open) => { if (!open) selectedEntry = null; }}>
+    <Dialog.Content class="sm:max-w-7xl">
+        <Dialog.Header>
+            <Dialog.Title class="flex items-center gap-4">
+                {#if selectedEntry}
+                    {@const Icon = levelIcon[selectedEntry.level.toLowerCase()]}
+                    <span class="flex items-center gap-2 {levelClass[selectedEntry.level.toLowerCase()]} capitalize">
+                        {#if Icon}<Icon class="size-5" />{/if}
+                        {selectedEntry.level}
+                    </span>
+
+                    {#if selectedEntry?.timestamp}
+                        <span>{selectedEntry.timestamp}</span>
+                    {/if}
+
+                    <span>{selectedEntry.message}</span>
+                {/if}
+            </Dialog.Title>
+        </Dialog.Header>
+        <Dialog.Body>
+            {#if selectedEntry && selectedEntry.extra}
+                <pre class="overflow-x-auto whitespace-pre-wrap break-words">{selectedEntry.extra}</pre>
+            {/if}
+        </Dialog.Body>
+    </Dialog.Content>
+</Dialog.Root>
