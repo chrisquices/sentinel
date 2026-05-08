@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Chrisquices\VulcanSentinel\Http\Controllers\LogController;
 use Chrisquices\VulcanSentinel\Http\Controllers\QueueController;
 use Chrisquices\VulcanSentinel\Http\Controllers\RuntimeController;
 use Chrisquices\VulcanSentinel\Http\Controllers\SchedulerController;
@@ -28,6 +29,13 @@ Route::group([
         // Scheduler
         Route::prefix('scheduler')->name('scheduler.')->group(function () {
             Route::get('/', [SchedulerController::class, 'show'])->name('show');
+        });
+
+        // Logs
+        Route::prefix('logs')->name('logs.')->group(function () {
+            Route::get('/channels', [LogController::class, 'channels'])->name('channels');
+            Route::get('/entries', [LogController::class, 'entries'])->name('entries');
+            Route::delete('/clear', [LogController::class, 'clear'])->name('clear');
         });
 
         // Queue

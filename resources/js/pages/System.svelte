@@ -147,7 +147,7 @@
                 <canvas bind:this={canvas} class="rounded-xl"></canvas>
                 <div
                         bind:this={tooltipEl}
-                        class="pointer-events-none w-44 fixed z-50 opacity-0 gap-4 transition-opacity bg-card border border-border rounded-md px-4 py-4 shadow-md -translate-x-1/2 -translate-y-full"
+                        class="pointer-events-none w-44 fixed z-50 opacity-0 gap-4 transition-opacity bg-card border border-border rounded-lg px-4 py-4 shadow-md -translate-x-1/2 -translate-y-full"
                 ></div>
             </div>
 

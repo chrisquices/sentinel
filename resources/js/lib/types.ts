@@ -72,6 +72,33 @@ export interface SchedulerTask {
     status: 'never' | 'success' | 'failed';
 }
 
+// Logs
+export interface LogChannel {
+    name: string;
+    driver: string;
+    path: string;
+}
+
+export interface LogEntry {
+    timestamp: string | null;
+    environment: string | null;
+    level: string;
+    message: string;
+    extra: string | null;
+}
+
+export interface LogEntriesResult {
+    entries: LogEntry[];
+    cursor: number | null;
+    hasMore: boolean;
+    tailCursor: number;
+}
+
+export interface LogTailResult {
+    entries: LogEntry[];
+    tailCursor: number;
+}
+
 // Queue
 export interface QueueData {
     summary: QueueSummary;

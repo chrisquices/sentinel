@@ -5,6 +5,7 @@
     import Runtime from './pages/Runtime.svelte';
     import Queue from './pages/Queue.svelte';
     import Scheduler from './pages/Scheduler.svelte';
+    import Logs from './pages/Logs.svelte';
     import {fetchSystem, fetchRuntime, fetchQueue, fetchScheduler} from '$lib/api';
 
     interface Props {
@@ -18,6 +19,7 @@
     let runtimeData = $state<any>(null);
     let schedulerData = $state<any>(window.__vulcanSentinel?.scheduler ?? null);
     let queueData = $state<any>(window.__vulcanSentinel?.queue ?? null);
+    let channelsData = $state<any>(window.__vulcanSentinel?.channels ?? null);
 
     function toggleTheme(): void {
         isDark = !isDark;
@@ -46,15 +48,16 @@
     });
 </script>
 
-<div class="min-h-screen transition-colors duration-200">
-    <div class="fixed inset-0 -z-10" style="background: linear-gradient(150deg, #050000 0%, #0d0000 20%, #170000 40%, #2d0000 60%, #3d0015 80%, #1f000b 100%);"></div>
+<div class="min-h-screen transition-colors duration-200 bg-background">
     <Topbar {isDark} {toggleTheme} {projectName} />
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
-        <div class="grid grid-cols-1 lg:grid-cols-6 gap-6 items-stretch">
-            <System initialData={systemData} class="lg:col-span-2 h-full" />
-            <Runtime initialData={runtimeData} class="lg:col-span-4 h-full" />
-        </div>
-        <Scheduler initialData={schedulerData} />
-        <Queue initialData={queueData} />
+    <main class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+<!--        <div class="grid grid-cols-1 lg:grid-cols-6 gap-6 items-stretch">-->
+<!--            <System initialData={systemData} class="lg:col-span-2 h-full" />-->
+<!--            <Runtime initialData={runtimeData} class="lg:col-span-4 h-full" />-->
+<!--        </div>-->
+<!--        <Scheduler initialData={schedulerData} />-->
+<!--        <Queue initialData={queueData} />-->
+
+        <Logs initialChannels={channelsData} />
     </main>
 </div>

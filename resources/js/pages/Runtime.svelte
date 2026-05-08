@@ -32,7 +32,7 @@
                     <Cpu class="w-4 h-4 text-primary"/>
                     <span class="font-medium text-card-foreground">PHP {info?.phpVersion ?? '—'}</span>
                 </div>
-                <span class="text-muted-foreground text-xs font-mono">{info?.sapi ?? ''}</span>
+                <span class="text-muted-foreground  font-mono">{info?.sapi ?? ''}</span>
             </div>
         </Card.Header>
 
@@ -42,19 +42,19 @@
                 <div class="space-y-4 flex-1">
                     <div class="flex justify-between items-center">
                         <span class="text-muted-foreground">Memory Limit</span>
-                        <span class="font-mono text-xs text-card-foreground">{info?.memoryLimit ?? '—'}</span>
+                        <span class="font-mono  text-card-foreground">{info?.memoryLimit ?? '—'}</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-muted-foreground">Max Execution</span>
-                        <span class="font-mono text-xs text-card-foreground">{info?.maxExecutionTime ?? '—'}</span>
+                        <span class="font-mono  text-card-foreground">{info?.maxExecutionTime ?? '—'}</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-muted-foreground">Upload Max</span>
-                        <span class="font-mono text-xs text-card-foreground">{info?.uploadMaxFilesize ?? '—'}</span>
+                        <span class="font-mono  text-card-foreground">{info?.uploadMaxFilesize ?? '—'}</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-muted-foreground">Post Max</span>
-                        <span class="font-mono text-xs text-card-foreground">{info?.postMaxSize ?? '—'}</span>
+                        <span class="font-mono  text-card-foreground">{info?.postMaxSize ?? '—'}</span>
                     </div>
                 </div>
 
@@ -70,21 +70,21 @@
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-muted-foreground">Hit Ratio</span>
-                            <span class="font-mono text-xs font-bold {hitRatioClass(info.opcache.hitRatio)}">
+                            <span class="font-mono  font-bold {hitRatioClass(info.opcache.hitRatio)}">
                         {info.opcache.hitRatio !== null ? info.opcache.hitRatio + '%' : '—'}
                     </span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-muted-foreground">Memory Used</span>
-                            <span class="font-mono text-xs text-card-foreground">{info.opcache.memoryUsed}</span>
+                            <span class="font-mono  text-card-foreground">{info.opcache.memoryUsed}</span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-muted-foreground">Memory Free</span>
-                            <span class="font-mono text-xs text-card-foreground">{info.opcache.memoryFree}</span>
+                            <span class="font-mono  text-card-foreground">{info.opcache.memoryFree}</span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-muted-foreground">Cached Scripts</span>
-                            <span class="font-mono text-xs text-card-foreground">{info.opcache.cachedScripts}</span>
+                            <span class="font-mono  text-card-foreground">{info.opcache.cachedScripts}</span>
                         </div>
                     </div>
                 {/if}

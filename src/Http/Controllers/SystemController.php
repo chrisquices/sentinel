@@ -2,6 +2,7 @@
 
 namespace Chrisquices\VulcanSentinel\Http\Controllers;
 
+use Chrisquices\VulcanSentinel\Services\LogService;
 use Chrisquices\VulcanSentinel\Services\QueueService;
 use Chrisquices\VulcanSentinel\Services\SchedulerService;
 use Chrisquices\VulcanSentinel\Services\SystemService;
@@ -17,6 +18,7 @@ class SystemController extends Controller
             'system'    => SystemService::get(),
             'queue'     => QueueService::get(),
             'scheduler' => SchedulerService::getEvents(),
+            'channels'  => LogService::getChannels(),
         ]);
     }
 

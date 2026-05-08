@@ -88,13 +88,13 @@
                                 <Table.Cell>
                                     <div class="flex items-center gap-2">
                                         <CalendarClock class="w-3.5 h-3.5 text-muted-foreground shrink-0"/>
-                                        <span class="font-medium text-card-foreground font-mono text-xs">{task.command}</span>
+                                        <span class="font-medium text-card-foreground font-mono ">{task.command}</span>
                                     </div>
                                 </Table.Cell>
 
                                 <Table.Cell>
                                     <span class="text-card-foreground">{task.expressionLabel}</span>
-                                    <span class="block text-muted-foreground font-mono text-xs">{task.expression}</span>
+                                    <span class="block text-muted-foreground font-mono ">{task.expression}</span>
                                 </Table.Cell>
 
                                 <Table.Cell>

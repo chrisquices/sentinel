@@ -13,6 +13,7 @@
             system: @json($system),
             scheduler: @json($scheduler),
             queue: @json($queue),
+            channels: @json($channels),
         };
     </script>
     <link rel="stylesheet" href="{{ asset('vendor/vulcan-sentinel/assets/app.css') }}">

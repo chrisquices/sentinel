@@ -10,8 +10,8 @@
     let { isDark = false, toggleTheme = () => {}, projectName = 'My Project' }: Props = $props();
 </script>
 
-<header class="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<header class="sticky top-0 z-40 border-b border-border bg-sidebar backdrop-blur-sm">
+    <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary">
@@ -25,7 +25,7 @@
 
             <button
                 onclick={toggleTheme}
-                class="p-2 rounded-md text-muted-foreground hover:bg-muted transition-colors"
+                class="p-2 rounded-lg text-muted-foreground hover:bg-muted transition-colors"
                 aria-label="Toggle theme"
             >
                 {#if isDark}

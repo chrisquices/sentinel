@@ -7,6 +7,7 @@ declare global {
             system?: unknown;
             scheduler?: unknown;
             queue?: unknown;
+            channels?: unknown;
         };
     }
 }
