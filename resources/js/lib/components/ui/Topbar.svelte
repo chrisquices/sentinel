@@ -11,14 +11,14 @@
 </script>
 
 <header class="sticky top-0 z-40 border-b border-border bg-sidebar backdrop-blur-sm">
-    <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary">
                     <Flame class="size-4.5 text-primary-foreground" />
                 </div>
                 <div>
-                    <span class="font-semibold text-foreground">Vulcan Sentinel</span>
+                    <span class="font-semibold text-foreground">Sentinel</span>
                     <span class="ml-2 text-muted-foreground">{projectName}</span>
                 </div>
             </div>

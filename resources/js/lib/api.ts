@@ -1,11 +1,11 @@
 const base = (): string => {
-    const path = window.__vulcanSentinel?.basePath ?? 'vulcan-sentinel';
+    const path = window.__sentinel?.basePath ?? 'sentinel';
     return `/${path}/api`;
 };
 
 const headers = (): Record<string, string> => ({
     'Content-Type': 'application/json',
-    'X-CSRF-TOKEN': window.__vulcanSentinel?.csrfToken ?? '',
+    'X-CSRF-TOKEN': window.__sentinel?.csrfToken ?? '',
 });
 
 // region --- System ---------------------------------------------------------------------------------------------------

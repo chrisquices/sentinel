@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('vulcan_sentinel_completed_jobs', function (Blueprint $table) {
+        Schema::create('sentinel_completed_jobs', function (Blueprint $table) {
             $table->id();
             $table->string('uuid')->nullable()->index();
             $table->string('connection');
@@ -23,6 +23,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('vulcan_sentinel_completed_jobs');
+        Schema::dropIfExists('sentinel_completed_jobs');
     }
 };

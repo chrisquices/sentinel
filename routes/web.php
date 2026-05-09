@@ -1,17 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Chrisquices\VulcanSentinel\Http\Controllers\IndexController;
-use Chrisquices\VulcanSentinel\Http\Controllers\LogController;
-use Chrisquices\VulcanSentinel\Http\Controllers\QueueController;
-use Chrisquices\VulcanSentinel\Http\Controllers\RuntimeController;
-use Chrisquices\VulcanSentinel\Http\Controllers\SchedulerController;
-use Chrisquices\VulcanSentinel\Http\Controllers\SystemController;
+use Chrisquices\Sentinel\Http\Controllers\IndexController;
+use Chrisquices\Sentinel\Http\Controllers\LogController;
+use Chrisquices\Sentinel\Http\Controllers\QueueController;
+use Chrisquices\Sentinel\Http\Controllers\RuntimeController;
+use Chrisquices\Sentinel\Http\Controllers\SchedulerController;
+use Chrisquices\Sentinel\Http\Controllers\SystemController;
 
 Route::group([
-    'prefix' => config('vulcan-sentinel.path', 'vulcan-sentinel'),
-    'middleware' => config('vulcan-sentinel.middleware', ['web']),
-    'as' => 'vulcan-sentinel.',
+    'prefix' => config('sentinel.path', 'sentinel'),
+    'middleware' => config('sentinel.middleware', ['web']),
+    'as' => 'sentinel.',
 ], function () {
     Route::get('/', IndexController::class)->name('index');
 

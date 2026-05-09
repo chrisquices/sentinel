@@ -152,10 +152,7 @@
                                 <Table.Row>
 
                                     <!-- Job -->
-                                    <Table.Cell>
-                                        <span class="text-card-foreground font-medium">{job.displayName}</span>
-                                        <span class="block text-muted text-sm">{job.jobClass}</span>
-                                    </Table.Cell>
+                                    <Table.Cell>{job.displayName}</Table.Cell>
 
                                     <!-- Queue -->
                                     <Table.Cell>{job.queue}</Table.Cell>

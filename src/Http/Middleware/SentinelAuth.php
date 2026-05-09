@@ -1,6 +1,6 @@
 <?php
 
-namespace Chrisquices\VulcanSentinel\Http\Middleware;
+namespace Chrisquices\Sentinel\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;

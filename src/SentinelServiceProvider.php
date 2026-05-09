@@ -1,27 +1,27 @@
 <?php
 
-namespace Chrisquices\VulcanSentinel;
+namespace Chrisquices\Sentinel;
 
 use Illuminate\Support\ServiceProvider;
-use Chrisquices\VulcanSentinel\Console\Commands\SentinelWatchCommand;
+use Chrisquices\Sentinel\Console\Commands\SentinelWatchCommand;
 use Illuminate\Console\Events\ScheduledTaskFinished;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\Facades\Event;
 
-class VulcanSentinelServiceProvider extends ServiceProvider
+class SentinelServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/vulcan-sentinel.php',
-            'vulcan-sentinel'
+            __DIR__ . '/../config/sentinel.php',
+            'sentinel'
         );
     }
 
     public function boot(): void
     {
         $this->registerPublishing();
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'vulcan-sentinel');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'sentinel');
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
@@ -32,11 +32,11 @@ class VulcanSentinelServiceProvider extends ServiceProvider
         }
 
         Event::listen(JobProcessed::class, function (JobProcessed $event) {
-            \Chrisquices\VulcanSentinel\Services\QueueService::recordCompletedJob($event);
+            \Chrisquices\Sentinel\Services\QueueService::recordCompletedJob($event);
         });
 
         Event::listen(ScheduledTaskFinished::class, function (ScheduledTaskFinished $event) {
-            \Chrisquices\VulcanSentinel\Services\SchedulerService::recordRun($event);
+            \Chrisquices\Sentinel\Services\SchedulerService::recordRun($event);
         });
     }
 
@@ -47,19 +47,19 @@ class VulcanSentinelServiceProvider extends ServiceProvider
         }
 
         $this->publishes([
-            __DIR__ . '/../config/vulcan-sentinel.php' => config_path('vulcan-sentinel.php'),
-        ], 'vulcan-sentinel-config');
+            __DIR__ . '/../config/sentinel.php' => config_path('sentinel.php'),
+        ], 'sentinel-config');
 
         $this->publishes([
-            __DIR__ . '/../resources/views' => resource_path('views/vendor/vulcan-sentinel'),
-        ], 'vulcan-sentinel-views');
+            __DIR__ . '/../resources/views' => resource_path('views/vendor/sentinel'),
+        ], 'sentinel-views');
 
         $this->publishes([
             __DIR__ . '/../database/migrations' => database_path('migrations'),
-        ], 'vulcan-sentinel-migrations');
+        ], 'sentinel-migrations');
 
         $this->publishes([
-            __DIR__ . '/../dist' => public_path('vendor/vulcan-sentinel'),
-        ], 'vulcan-sentinel-assets');
+            __DIR__ . '/../dist' => public_path('vendor/sentinel'),
+        ], 'sentinel-assets');
     }
 }

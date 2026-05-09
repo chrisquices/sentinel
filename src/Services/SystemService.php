@@ -1,8 +1,8 @@
 <?php
 
-namespace Chrisquices\VulcanSentinel\Services;
+namespace Chrisquices\Sentinel\Services;
 
-use Chrisquices\VulcanSentinel\Helpers\SystemHelper;
+use Chrisquices\Sentinel\Helpers\SystemHelper;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;

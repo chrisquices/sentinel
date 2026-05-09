@@ -1,8 +1,8 @@
 <?php
 
-namespace Chrisquices\VulcanSentinel\Services;
+namespace Chrisquices\Sentinel\Services;
 
-use Chrisquices\VulcanSentinel\Helpers\LogHelper;
+use Chrisquices\Sentinel\Helpers\LogHelper;
 
 class LogService
 {
@@ -251,7 +251,7 @@ class LogService
 
     private static function logCacheKey(string $channel): string
     {
-        return "vulcan_sentinel:log_index:{$channel}";
+        return "sentinel:log_index:{$channel}";
     }
 
     private static function invalidateLogIndex(string $channel): void

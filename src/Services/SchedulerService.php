@@ -1,8 +1,8 @@
 <?php
 
-namespace Chrisquices\VulcanSentinel\Services;
+namespace Chrisquices\Sentinel\Services;
 
-use Chrisquices\VulcanSentinel\Helpers\SchedulerHelper;
+use Chrisquices\Sentinel\Helpers\SchedulerHelper;
 use Illuminate\Console\Events\ScheduledTaskFinished;
 use Illuminate\Console\Scheduling\CallbackEvent;
 use Illuminate\Console\Scheduling\Event;
@@ -37,7 +37,7 @@ class SchedulerService
         foreach ($schedule->events() as $event) {
             $command = self::resolveCommand($event);
 
-            $lastRun = DB::table('vulcan_sentinel_scheduler_runs')
+            $lastRun = DB::table('sentinel_scheduler_runs')
                 ->where('command', $command)
                 ->orderByDesc('ran_at')
                 ->first();
@@ -60,7 +60,7 @@ class SchedulerService
 
     public static function recordRun(ScheduledTaskFinished $event): void
     {
-        DB::table('vulcan_sentinel_scheduler_runs')->insert([
+        DB::table('sentinel_scheduler_runs')->insert([
             'command'   => self::resolveCommand($event->task),
             'ran_at'    => now(),
             'exit_code' => $event->task->exitCode,

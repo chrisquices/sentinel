@@ -1,8 +1,8 @@
 <?php
 
-namespace Chrisquices\VulcanSentinel\Services;
+namespace Chrisquices\Sentinel\Services;
 
-use Chrisquices\VulcanSentinel\Helpers\RuntimeHelper;
+use Chrisquices\Sentinel\Helpers\RuntimeHelper;
 
 class RuntimeService
 {

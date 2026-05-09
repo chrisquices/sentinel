@@ -1,8 +1,7 @@
 {
-    "name": "chrisquices/vulcan-sentinel",
+    "name": "chrisquices/sentinel",
     "description": "A real-time Laravel monitoring dashboard for queues, cache, system health, scheduler, and logs.",
     "keywords": ["laravel", "monitoring", "dashboard", "sentinel", "queue", "logs"],
-    "version": "1.0.0",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -21,21 +20,21 @@
     },
     "autoload": {
         "psr-4": {
-            "Chrisquices\\VulcanSentinel\\": "src/"
+            "Chrisquices\\Sentinel\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Chrisquices\\VulcanSentinel\\Tests\\": "tests/"
+            "Chrisquices\\Sentinel\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Chrisquices\\VulcanSentinel\\VulcanSentinelServiceProvider"
+                "Chrisquices\\Sentinel\\SentinelServiceProvider"
             ],
             "aliases": {
-                "Sentinel": "Chrisquices\\VulcanSentinel\\Facades\\Sentinel"
+                "Sentinel": "Chrisquices\\Sentinel\\Facades\\Sentinel"
             }
         }
     },

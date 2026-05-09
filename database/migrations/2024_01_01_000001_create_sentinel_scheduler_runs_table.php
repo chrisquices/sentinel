@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('vulcan_sentinel_scheduler_runs', function (Blueprint $table) {
+        Schema::create('sentinel_scheduler_runs', function (Blueprint $table) {
             $table->id();
             $table->string('command');
             $table->timestamp('ran_at');
@@ -18,6 +18,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('vulcan_sentinel_scheduler_runs');
+        Schema::dropIfExists('sentinel_scheduler_runs');
     }
 };

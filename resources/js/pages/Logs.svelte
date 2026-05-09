@@ -289,7 +289,7 @@
 </section>
 
 <Dialog.Root open={selectedEntry !== null} onOpenChange={(open) => { if (!open) selectedEntry = null; }}>
-    <Dialog.Content class="sm:max-w-8xl">
+    <Dialog.Content class="sm:max-w-7xl">
         <Dialog.Header>
             <Dialog.Title class="flex items-center gap-4">
                 {#if selectedEntry}

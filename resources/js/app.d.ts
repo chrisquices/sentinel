@@ -1,6 +1,6 @@
 declare global {
     interface Window {
-        __vulcanSentinel?: {
+        __sentinel?: {
             projectName: string;
             basePath: string;
             csrfToken: string;

@@ -1,8 +1,8 @@
 <?php
 
-namespace Chrisquices\VulcanSentinel\Http\Controllers;
+namespace Chrisquices\Sentinel\Http\Controllers;
 
-use Chrisquices\VulcanSentinel\Services\LogService;
+use Chrisquices\Sentinel\Services\LogService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 

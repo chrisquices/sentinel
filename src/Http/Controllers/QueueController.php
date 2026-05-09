@@ -1,8 +1,8 @@
 <?php
 
-namespace Chrisquices\VulcanSentinel\Http\Controllers;
+namespace Chrisquices\Sentinel\Http\Controllers;
 
-use Chrisquices\VulcanSentinel\Services\QueueService;
+use Chrisquices\Sentinel\Services\QueueService;
 use Illuminate\Routing\Controller;
 
 class QueueController extends Controller

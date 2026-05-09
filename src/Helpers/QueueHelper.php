@@ -1,6 +1,6 @@
 <?php
 
-namespace Chrisquices\VulcanSentinel\Helpers;
+namespace Chrisquices\Sentinel\Helpers;
 
 class QueueHelper
 {

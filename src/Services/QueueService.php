@@ -1,8 +1,8 @@
 <?php
 
-namespace Chrisquices\VulcanSentinel\Services;
+namespace Chrisquices\Sentinel\Services;
 
-use Chrisquices\VulcanSentinel\Helpers\QueueHelper;
+use Chrisquices\Sentinel\Helpers\QueueHelper;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
@@ -58,7 +58,7 @@ class QueueService
 
     public static function getCompletedCount(): int
     {
-        return DB::table('vulcan_sentinel_completed_jobs')->count();
+        return DB::table('sentinel_completed_jobs')->count();
     }
 
     public static function getFailedCount(): int
@@ -125,7 +125,7 @@ class QueueService
         }
 
         // Completed
-        $completed = DB::table('vulcan_sentinel_completed_jobs')->orderByDesc('completed_at')->get();
+        $completed = DB::table('sentinel_completed_jobs')->orderByDesc('completed_at')->get();
         foreach ($completed as $job) {
             $jobs[] = [
                 'id' => $job->id,
@@ -167,7 +167,7 @@ class QueueService
         $job = $event->job;
         $payload = $job->payload();
 
-        DB::table('vulcan_sentinel_completed_jobs')->insert([
+        DB::table('sentinel_completed_jobs')->insert([
             'uuid'         => $payload['uuid'] ?? null,
             'connection'   => $job->getConnectionName(),
             'queue'        => $job->getQueue(),
@@ -185,7 +185,7 @@ class QueueService
     public static function deleteCompletedJob(string $id): bool
     {
         try {
-            DB::table('vulcan_sentinel_completed_jobs')->where('id', $id)->delete();
+            DB::table('sentinel_completed_jobs')->where('id', $id)->delete();
             return true;
         } catch (\Exception $e) {
             return false;
@@ -195,7 +195,7 @@ class QueueService
     public static function clearCompletedJobs(): bool
     {
         try {
-            DB::table('vulcan_sentinel_completed_jobs')->truncate();
+            DB::table('sentinel_completed_jobs')->truncate();
             return true;
         } catch (\Exception $e) {
             return false;

@@ -1,8 +1,8 @@
 <?php
 
-namespace Chrisquices\VulcanSentinel\Http\Controllers;
+namespace Chrisquices\Sentinel\Http\Controllers;
 
-use Chrisquices\VulcanSentinel\Services\SchedulerService;
+use Chrisquices\Sentinel\Services\SchedulerService;
 use Illuminate\Routing\Controller;
 
 class SchedulerController extends Controller

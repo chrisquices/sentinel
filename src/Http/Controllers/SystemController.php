@@ -1,8 +1,8 @@
 <?php
 
-namespace Chrisquices\VulcanSentinel\Http\Controllers;
+namespace Chrisquices\Sentinel\Http\Controllers;
 
-use Chrisquices\VulcanSentinel\Services\SystemService;
+use Chrisquices\Sentinel\Services\SystemService;
 use Illuminate\Routing\Controller;
 
 class SystemController extends Controller

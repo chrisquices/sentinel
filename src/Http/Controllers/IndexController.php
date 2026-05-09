@@ -1,12 +1,12 @@
 <?php
 
-namespace Chrisquices\VulcanSentinel\Http\Controllers;
+namespace Chrisquices\Sentinel\Http\Controllers;
 
-use Chrisquices\VulcanSentinel\Services\LogService;
-use Chrisquices\VulcanSentinel\Services\QueueService;
-use Chrisquices\VulcanSentinel\Services\RuntimeService;
-use Chrisquices\VulcanSentinel\Services\SchedulerService;
-use Chrisquices\VulcanSentinel\Services\SystemService;
+use Chrisquices\Sentinel\Services\LogService;
+use Chrisquices\Sentinel\Services\QueueService;
+use Chrisquices\Sentinel\Services\RuntimeService;
+use Chrisquices\Sentinel\Services\SchedulerService;
+use Chrisquices\Sentinel\Services\SystemService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -22,7 +22,7 @@ class IndexController extends Controller
         $schedulerData = SchedulerService::get();
         $logsData = LogService::get();
 
-        return view('vulcan-sentinel::app', [
+        return view('sentinel::app', [
             'systemData' => $systemData,
             'runtimeData' => $runtimeData,
             'queueData' => $queueData,

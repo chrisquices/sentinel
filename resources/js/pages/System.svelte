@@ -122,7 +122,7 @@
 </script>
 
 <section class={className}>
-    <h2 class="font-semibold text-foreground mb-4">System</h2>
+    <h2 class="font-semibold text-foreground mb-4">Systems</h2>
 
     <!-- System -->
     <Card.Root>
