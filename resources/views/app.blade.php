@@ -11,6 +11,7 @@
             basePath: @json(config('vulcan-sentinel.path', 'vulcan-sentinel')),
             csrfToken: @json(csrf_token()),
             systemData: @json($systemData),
+            runtimeData: @json($runtimeData),
             schedulerData: @json($schedulerData),
             queueData: @json($queueData),
             logsData: @json($logsData),

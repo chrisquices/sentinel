@@ -15,6 +15,7 @@
         deleteCompletedJob,
         deleteFailedJob
     } from "$lib/api";
+    import {Skeleton} from '$lib/components/ui/skeleton';
 
     interface Props {
         initialData?: QueueInitialData | null;
@@ -26,12 +27,16 @@
     const filters = ['pending', 'processing', 'completed', 'failed'] as const;
     type Filter = typeof filters[number];
 
-    let queueData = $state<QueueData | null>(initialData);
+    let queueData = $state<QueueData | null>(null);
     let activeFilter = $state<Filter>('pending');
 
     let filteredJobs = $derived(
         queueData?.jobs.filter(j => j.status === activeFilter) ?? []
     );
+
+    $effect(() => {
+        if (initialData && !queueData) queueData = initialData;
+    });
 
     onMount(() => {
         const interval = setInterval(async () => {
@@ -132,90 +137,118 @@
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {#if filteredJobs.length === 0}
+                    {#if initialData}
+                        {#if filteredJobs.length === 0}
 
-                        <!-- No results found -->
-                        <Table.Row>
-                            <Table.Cell colspan={99}
-                                        class="text-center py-8 text-muted-foreground">
-                                No {activeFilter} jobs
-                            </Table.Cell>
-                        </Table.Row>
+                            <!-- No results found -->
+                            <Table.Row>
+                                <Table.Cell colspan={99}
+                                            class="text-center py-8 text-muted-foreground">
+                                    No {activeFilter} jobs
+                                </Table.Cell>
+                            </Table.Row>
+                        {:else}
+                            {#each filteredJobs as job}
+                                <Table.Row>
+
+                                    <!-- Job -->
+                                    <Table.Cell>
+                                        <span class="text-card-foreground font-medium">{job.displayName}</span>
+                                        <span class="block text-muted text-sm">{job.jobClass}</span>
+                                    </Table.Cell>
+
+                                    <!-- Queue -->
+                                    <Table.Cell>{job.queue}</Table.Cell>
+
+                                    <!-- Attempts -->
+                                    <Table.Cell>{job.attempts}</Table.Cell>
+
+                                    <!-- Pending -->
+                                    {#if activeFilter === 'pending'}
+
+                                        <!-- Timestamp (Created At / Completed At / Failed At) -->
+                                        <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
+                                    {/if}
+
+                                    <!-- Processing -->
+                                    {#if activeFilter === 'processing'}
+
+                                        <!-- Timestamp (Created At / Completed At / Failed At) -->
+                                        <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
+                                    {/if}
+
+                                    <!-- Completed -->
+                                    {#if activeFilter === 'completed'}
+
+                                        <!-- Run Time -->
+                                        <Table.Cell>{job.runTimeFormatted ?? '—'}</Table.Cell>
+
+                                        <!-- Timestamp -->
+                                        <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
+
+                                        <!-- Actions -->
+                                        <Table.Cell class="text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <Button variant="secondary" size="icon"
+                                                        onclick={() => deleteCompletedJob(job.id)}>
+                                                    <Trash2/>
+                                                </Button>
+                                            </div>
+                                        </Table.Cell>
+                                    {/if}
+
+                                    <!-- Failed -->
+                                    {#if activeFilter === 'failed'}
+
+                                        <!-- Exception -->
+                                        <Table.Cell class="max-w-xs truncate"
+                                                    title={job.exceptionFull}>{job.exception}</Table.Cell>
+
+                                        <!-- Timestamp -->
+                                        <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
+
+                                        <!-- Actions -->
+                                        <Table.Cell class="text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <Button variant="secondary" size="icon"
+                                                        onclick={() => retryFailedJob(job.id)}>
+                                                    <RotateCcw/>
+                                                </Button>
+
+                                                <Button variant="secondary" size="icon"
+                                                        onclick={() => deleteFailedJob(job.id)}>
+                                                    <Trash2/>
+                                                </Button>
+                                            </div>
+                                        </Table.Cell>
+                                    {/if}
+                                </Table.Row>
+                            {/each}
+                        {/if}
                     {:else}
-                        {#each filteredJobs as job}
+                        {#each Array(5).fill(0) as _}
                             <Table.Row>
 
                                 <!-- Job -->
                                 <Table.Cell>
-                                    <span class="text-card-foreground font-medium">{job.displayName}</span>
-                                    <span class="block text-muted text-sm">{job.jobClass}</span>
+                                    <Skeleton class="h-4 w-40 mb-1"/>
+                                    <Skeleton class="h-3 w-56"/>
                                 </Table.Cell>
 
                                 <!-- Queue -->
-                                <Table.Cell>{job.queue}</Table.Cell>
+                                <Table.Cell>
+                                    <Skeleton class="h-4 w-16"/>
+                                </Table.Cell>
 
                                 <!-- Attempts -->
-                                <Table.Cell>{job.attempts}</Table.Cell>
+                                <Table.Cell>
+                                    <Skeleton class="h-4 w-8"/>
+                                </Table.Cell>
 
-                                <!-- Pending -->
-                                {#if activeFilter === 'pending'}
-
-                                    <!-- Timestamp (Created At / Completed At / Failed At) -->
-                                    <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
-                                {/if}
-
-                                <!-- Processing -->
-                                {#if activeFilter === 'processing'}
-
-                                    <!-- Timestamp (Created At / Completed At / Failed At) -->
-                                    <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
-                                {/if}
-
-                                <!-- Completed -->
-                                {#if activeFilter === 'completed'}
-
-                                    <!-- Run Time -->
-                                    <Table.Cell>{job.runTimeFormatted ?? '—'}</Table.Cell>
-
-                                    <!-- Timestamp -->
-                                    <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
-
-                                    <!-- Actions -->
-                                    <Table.Cell class="text-right">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <Button variant="secondary" size="icon"
-                                                    onclick={() => deleteCompletedJob(job.id)}>
-                                                <Trash2/>
-                                            </Button>
-                                        </div>
-                                    </Table.Cell>
-                                {/if}
-
-                                <!-- Failed -->
-                                {#if activeFilter === 'failed'}
-
-                                    <!-- Exception -->
-                                    <Table.Cell class="max-w-xs truncate"
-                                                title={job.exceptionFull}>{job.exception}</Table.Cell>
-
-                                    <!-- Timestamp -->
-                                    <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
-
-                                    <!-- Actions -->
-                                    <Table.Cell class="text-right">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <Button variant="secondary" size="icon"
-                                                    onclick={() => retryFailedJob(job.id)}>
-                                                <RotateCcw/>
-                                            </Button>
-
-                                            <Button variant="secondary" size="icon"
-                                                    onclick={() => deleteFailedJob(job.id)}>
-                                                <Trash2/>
-                                            </Button>
-                                        </div>
-                                    </Table.Cell>
-                                {/if}
+                                <!-- Timestamp -->
+                                <Table.Cell class="text-right">
+                                    <Skeleton class="h-4 w-24 ml-auto"/>
+                                </Table.Cell>
                             </Table.Row>
                         {/each}
                     {/if}

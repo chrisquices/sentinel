@@ -5,6 +5,7 @@
     import type {SystemData, SystemInitialData} from '$lib/types';
     import {fetchSystem} from '$lib/api';
     import Chart from 'chart.js/auto';
+    import {Skeleton} from '$lib/components/ui/skeleton';
 
     interface Props {
         initialData?: SystemInitialData | null;
@@ -20,7 +21,11 @@
     // endregion
 
     // region --- System -----------------------------------------------------------------------------------------------
-    let systemData = $state<SystemData | null>(initialData);
+    let systemData = $state<SystemData | null>(null);
+
+    $effect(() => {
+        if (initialData && !systemData) systemData = initialData;
+    });
 
     let canvas: HTMLCanvasElement;
     let chart: Chart;
@@ -121,59 +126,104 @@
 
     <!-- System -->
     <Card.Root>
-        <Card.Header>
+        {#if initialData}
+            <Card.Header>
 
-            <!-- CPU / CPU Cores / CPU Usage -->
-            <div class="flex items-center justify-between w-full">
-                <div class="flex items-center gap-2">
-                    <Cpu class="w-4 h-4 text-primary"/>
-                    <span class="font-medium text-card-foreground">
-                        CPU ({systemData?.cpu.cores ?? '—'} {systemData?.cpu.cores === 1 ? 'core' : 'cores'})
-                    </span>
+                <!-- CPU / CPU Cores / CPU Usage -->
+                <div class="flex items-center justify-between w-full">
+                    <div class="flex items-center gap-2">
+                        <Cpu class="w-4 h-4 text-primary"/>
+                        <span class="font-medium text-card-foreground">
+                            CPU ({systemData?.cpu.cores ?? '—'} {systemData?.cpu.cores === 1 ? 'core' : 'cores'})
+                        </span>
+                    </div>
+                    <span class="font-bold text-card-foreground">{systemData?.cpu.usageFormatted ?? '—'}</span>
                 </div>
-                <span class="font-bold text-card-foreground">{systemData?.cpu.usageFormatted ?? '—'}</span>
-            </div>
-        </Card.Header>
+            </Card.Header>
 
-        <Card.Content class="p-6 h-full">
+            <Card.Content class="p-6 h-full">
 
-            <!-- CPU History Chart -->
-            <div class="h-24 mb-2 relative">
-                <canvas bind:this={canvas} class="rounded-xl"></canvas>
-                <div
-                        bind:this={tooltipEl}
-                        class="pointer-events-none w-44 fixed z-50 opacity-0 gap-4 transition-opacity bg-card border border-border rounded-lg px-4 py-4 shadow-md -translate-x-1/2 -translate-y-full"
-                ></div>
-            </div>
-
-            <div class="space-y-6">
-
-                <!-- Memory -->
-                <div class="space-y-1">
-                    <div class="flex justify-between text-muted-foreground">
-                        <span>RAM</span>
-                        <span>{systemData?.memory.usedFormatted ?? '—'}
-                            / {systemData?.memory.totalFormatted ?? '—'}</span>
-                    </div>
-                    <div class="w-full bg-muted rounded-full h-1.5">
-                        <div class="bg-primary h-1.5 rounded-full"
-                             style="width: {systemData ? (systemData.memory.used / systemData.memory.total * 100) : 0}%"></div>
-                    </div>
+                <!-- CPU History Chart -->
+                <div class="h-24 mb-2 relative">
+                    <canvas bind:this={canvas} class="rounded-xl"></canvas>
+                    <div
+                            bind:this={tooltipEl}
+                            class="pointer-events-none w-44 fixed z-50 opacity-0 gap-4 transition-opacity bg-card border border-border rounded-lg px-4 py-4 shadow-md -translate-x-1/2 -translate-y-full"
+                    ></div>
                 </div>
 
-                <!-- Storage -->
-                <div class="space-y-1">
-                    <div class="flex justify-between text-muted-foreground">
-                        <span>Storage</span>
-                        <span>{systemData?.storage.usedFormatted ?? '—'}
-                            / {systemData?.storage.totalFormatted ?? '—'}</span>
+                <div class="space-y-6">
+
+                    <!-- Memory -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-muted-foreground">
+                            <span>RAM</span>
+                            <span>{systemData?.memory.usedFormatted ?? '—'}
+                                / {systemData?.memory.totalFormatted ?? '—'}</span>
+                        </div>
+                        <div class="w-full bg-muted rounded-full h-1.5">
+                            <div class="bg-primary h-1.5 rounded-full"
+                                 style="width: {systemData ? (systemData.memory.used / systemData.memory.total * 100) : 0}%"></div>
+                        </div>
                     </div>
-                    <div class="w-full bg-muted rounded-full h-1.5">
-                        <div class="bg-muted-foreground h-1.5 rounded-full"
-                             style="width: {systemData ? (systemData.storage.used / systemData.storage.total * 100) : 0}%"></div>
+
+                    <!-- Storage -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-muted-foreground">
+                            <span>Storage</span>
+                            <span>{systemData?.storage.usedFormatted ?? '—'}
+                                / {systemData?.storage.totalFormatted ?? '—'}</span>
+                        </div>
+                        <div class="w-full bg-muted rounded-full h-1.5">
+                            <div class="bg-muted-foreground h-1.5 rounded-full"
+                                 style="width: {systemData ? (systemData.storage.used / systemData.storage.total * 100) : 0}%"></div>
+                        </div>
                     </div>
                 </div>
+            </Card.Content>
+        {:else}
+            <!-- Hidden canvas kept in DOM so initChart() can bind without crashing -->
+            <div class="sr-only" aria-hidden="true">
+                <canvas bind:this={canvas}></canvas>
+                <div bind:this={tooltipEl}></div>
             </div>
-        </Card.Content>
+
+            <Card.Header>
+                <div class="flex items-center justify-between w-full">
+                    <div class="flex items-center gap-2">
+                        <Cpu class="w-4 h-4 text-primary"/>
+                        <Skeleton class="h-4 w-32"/>
+                    </div>
+                    <Skeleton class="h-4 w-12"/>
+                </div>
+            </Card.Header>
+
+            <Card.Content class="p-6 h-full">
+
+                <!-- Skeleton: Chart area -->
+                <Skeleton class="h-24 w-full rounded-xl mb-2"/>
+
+                <div class="space-y-6">
+
+                    <!-- Skeleton: Memory -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between">
+                            <Skeleton class="h-4 w-8"/>
+                            <Skeleton class="h-4 w-28"/>
+                        </div>
+                        <Skeleton class="h-1.5 w-full rounded-full"/>
+                    </div>
+
+                    <!-- Skeleton: Storage -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between">
+                            <Skeleton class="h-4 w-14"/>
+                            <Skeleton class="h-4 w-28"/>
+                        </div>
+                        <Skeleton class="h-1.5 w-full rounded-full"/>
+                    </div>
+                </div>
+            </Card.Content>
+        {/if}
     </Card.Root>
 </section>

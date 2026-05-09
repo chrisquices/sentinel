@@ -41,7 +41,7 @@ export interface Storage {
 }
 
 // Runtime
-export interface RuntimeInfo {
+export interface RuntimeData {
     phpVersion: string;
     sapi: string;
     memoryLimit: string;

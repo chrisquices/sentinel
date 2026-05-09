@@ -6,6 +6,7 @@
     import type {SchedulerInitialData, SchedulerData, SchedulerTask} from '$lib/types';
     import {fetchScheduler} from '$lib/api';
     import {CalendarClock} from 'lucide-svelte';
+    import {Skeleton} from '$lib/components/ui/skeleton';
 
     interface Props {
         initialData?: SchedulerInitialData | null;
@@ -14,7 +15,12 @@
     let {initialData = null}: Props = $props();
 
     // region --- Scheduler --------------------------------------------------------------------------------------------
-    let tasks = $state<SchedulerTask[]>(initialData?.events ?? []);
+    let tasks = $state<SchedulerTask[]>([]);
+
+    $effect(() => {
+        if (initialData && tasks.length === 0) tasks = initialData.events ?? [];
+    });
+
     let now = $state(Date.now());
 
     function formatCountdown(isoString: string): string {
@@ -78,47 +84,70 @@
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {#if tasks.length === 0}
-                        <Table.Row>
-                            <Table.Cell colspan={5} class="text-center py-8 text-muted-foreground">
-                                No scheduled tasks
-                            </Table.Cell>
-                        </Table.Row>
+                    {#if initialData}
+                        {#if tasks.length === 0}
+                            <Table.Row>
+                                <Table.Cell colspan={5} class="text-center py-8 text-muted-foreground">
+                                    No scheduled tasks
+                                </Table.Cell>
+                            </Table.Row>
+                        {:else}
+                            {#each tasks as task}
+                                <Table.Row>
+                                    <Table.Cell>
+                                        <div class="flex items-center gap-2">
+                                            <CalendarClock class="w-3.5 h-3.5 text-muted-foreground shrink-0"/>
+                                            <span class="font-medium text-card-foreground font-mono ">{task.command}</span>
+                                        </div>
+                                    </Table.Cell>
+
+                                    <Table.Cell>
+                                        <span class="text-card-foreground">{task.expressionLabel}</span>
+                                        <span class="block text-muted-foreground font-mono ">{task.expression}</span>
+                                    </Table.Cell>
+
+                                    <Table.Cell>
+                                        <span class={isOverdue(task.nextRun) ? 'text-amber-500 font-medium' : 'text-card-foreground'}>
+                                            {formatCountdown(task.nextRun)}
+                                        </span>
+                                    </Table.Cell>
+
+                                    <Table.Cell class="text-muted-foreground">
+                                        {formatRelative(task.lastRanAt)}
+                                    </Table.Cell>
+
+                                    <Table.Cell class="text-right">
+                                        {#if task.status === 'success'}
+                                            <Badge variant="outline" class="border-green-500/30 bg-green-500/10 text-green-600 dark:text-green-400">
+                                                success
+                                            </Badge>
+                                        {:else if task.status === 'failed'}
+                                            <Badge variant="destructive">failed</Badge>
+                                        {:else}
+                                            <Badge variant="secondary">never run</Badge>
+                                        {/if}
+                                    </Table.Cell>
+                                </Table.Row>
+                            {/each}
+                        {/if}
                     {:else}
-                        {#each tasks as task}
+                        {#each Array(5).fill(0) as _}
                             <Table.Row>
                                 <Table.Cell>
-                                    <div class="flex items-center gap-2">
-                                        <CalendarClock class="w-3.5 h-3.5 text-muted-foreground shrink-0"/>
-                                        <span class="font-medium text-card-foreground font-mono ">{task.command}</span>
-                                    </div>
+                                    <Skeleton class="h-4 w-48"/>
                                 </Table.Cell>
-
                                 <Table.Cell>
-                                    <span class="text-card-foreground">{task.expressionLabel}</span>
-                                    <span class="block text-muted-foreground font-mono ">{task.expression}</span>
+                                    <Skeleton class="h-4 w-24 mb-1"/>
+                                    <Skeleton class="h-3 w-16"/>
                                 </Table.Cell>
-
                                 <Table.Cell>
-                                    <span class={isOverdue(task.nextRun) ? 'text-amber-500 font-medium' : 'text-card-foreground'}>
-                                        {formatCountdown(task.nextRun)}
-                                    </span>
+                                    <Skeleton class="h-4 w-16"/>
                                 </Table.Cell>
-
-                                <Table.Cell class="text-muted-foreground">
-                                    {formatRelative(task.lastRanAt)}
+                                <Table.Cell>
+                                    <Skeleton class="h-4 w-20"/>
                                 </Table.Cell>
-
                                 <Table.Cell class="text-right">
-                                    {#if task.status === 'success'}
-                                        <Badge variant="outline" class="border-green-500/30 bg-green-500/10 text-green-600 dark:text-green-400">
-                                            success
-                                        </Badge>
-                                    {:else if task.status === 'failed'}
-                                        <Badge variant="destructive">failed</Badge>
-                                    {:else}
-                                        <Badge variant="secondary">never run</Badge>
-                                    {/if}
+                                    <Skeleton class="h-5 w-20 ml-auto"/>
                                 </Table.Cell>
                             </Table.Row>
                         {/each}

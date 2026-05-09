@@ -14,6 +14,7 @@
     import {AlertTriangle, Bug, Info, AlertCircle, Flame} from 'lucide-svelte';
     import type {ComponentType} from 'svelte';
     import type {LogChannel, LogEntry, LogEntriesResult, LogTailResult, LogInitialData} from '$lib/types';
+    import {Skeleton} from '$lib/components/ui/skeleton';
 
     interface Props {
         initialData?: LogInitialData | null;
@@ -23,7 +24,7 @@
 
     // region --- Channel Selector --------------------------------------------------------------------------------------
     let channels: LogChannel[] = $derived(initialData?.channels ?? []);
-    let activeChannel = $state(localStorage.getItem('logs:channel') ?? '');
+    let activeChannel = $state(typeof localStorage !== 'undefined' ? localStorage.getItem('logs:channel') ?? '' : '');
 
     $effect(() => {
         if (channels.length > 0 && activeChannel === '') {
@@ -40,7 +41,7 @@
     const levels = ['', 'error', 'warning', 'info', 'debug'] as const;
     type Level = typeof levels[number];
 
-    let activeLevel = $state<Level>((localStorage.getItem('logs:level') as Level) ?? '');
+    let activeLevel = $state<Level>((typeof localStorage !== 'undefined' ? localStorage.getItem('logs:level') as Level : '') ?? '');
 
     $effect(() => {
         localStorage.setItem('logs:level', activeLevel);
@@ -81,12 +82,20 @@
     // endregion
 
     // region --- Logs --------------------------------------------------------------------------------------------------
-    let entries = $state<LogEntry[]>(initialData?.entries ?? []);
-    let tailCursor = $state<number>(initialData?.tailCursor ?? 0);
-    let total = $state<number>(initialData?.total ?? 0);
+    let entries = $state<LogEntry[]>([]);
+    let tailCursor = $state<number>(0);
+    let total = $state<number>(0);
     let loading = $state(false);
     const perPage = 20;
     let page = $state(1);
+
+    $effect(() => {
+        if (initialData && entries.length === 0) {
+            entries = initialData.entries;
+            tailCursor = initialData.tailCursor;
+            total = initialData.total;
+        }
+    });
 
     $effect(() => {
         const ch = activeChannel;
@@ -155,15 +164,21 @@
 
             <!-- Channel Selector -->
             <div class="flex flex-wrap gap-2 w-full">
-                {#each channels as channel}
-                    <Button
-                            onclick={() => { activeChannel = channel.name; page = 1; }}
-                            variant={activeChannel === channel.name ? 'default' : 'outline'}
-                            class="capitalize"
-                    >
-                        {channel.name}
-                    </Button>
-                {/each}
+                {#if initialData}
+                    {#each channels as channel}
+                        <Button
+                                onclick={() => { activeChannel = channel.name; page = 1; }}
+                                variant={activeChannel === channel.name ? 'default' : 'outline'}
+                                class="capitalize"
+                        >
+                            {channel.name}
+                        </Button>
+                    {/each}
+                {:else}
+                    {#each Array(3).fill(0) as _}
+                        <Skeleton class="h-9 w-20 rounded-md"/>
+                    {/each}
+                {/if}
             </div>
         </Card.Header>
 
@@ -184,37 +199,59 @@
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {#if entries.length === 0}
-                        <Table.Row>
-                            <Table.Cell colspan={4} class="text-center py-8 text-muted-foreground">
-                                {loading ? 'Loading…' : 'No log entries'}
-                            </Table.Cell>
-                        </Table.Row>
+                    {#if initialData}
+                        {#if entries.length === 0}
+                            <Table.Row>
+                                <Table.Cell colspan={4} class="text-center py-8 text-muted-foreground">
+                                    {loading ? 'Loading…' : 'No log entries'}
+                                </Table.Cell>
+                            </Table.Row>
+                        {:else}
+                            {#each entries as entry}
+                                <Table.Row
+                                        class="cursor-pointer"
+                                        onclick={() => selectedEntry = entry}
+                                >
+                                    <!-- Level -->
+                                    <Table.Cell>
+                                        {@const Icon = levelIcon[entry.level.toLowerCase()]}
+                                        <div class="flex items-center gap-2 {levelClass[entry.level.toLowerCase()]}">
+                                            {#if Icon}
+                                                <Icon class="size-5"/>
+                                            {/if}
+                                            <span class="capitalize">{entry.level}</span>
+                                        </div>
+                                    </Table.Cell>
+
+                                    <!-- Timestamp -->
+                                    <Table.Cell class="whitespace-nowrap">
+                                        {entry.timestampFormatted ?? '—'}
+                                    </Table.Cell>
+
+                                    <!-- Description -->
+                                    <Table.Cell class="whitespace-nowrap">
+                                        {entry.message}
+                                    </Table.Cell>
+                                </Table.Row>
+                            {/each}
+                        {/if}
                     {:else}
-                        {#each entries as entry}
-                            <Table.Row
-                                    class="cursor-pointer"
-                                    onclick={() => selectedEntry = entry}
-                            >
+                        {#each Array(5).fill(0) as _}
+                            <Table.Row>
+
                                 <!-- Level -->
                                 <Table.Cell>
-                                    {@const Icon = levelIcon[entry.level.toLowerCase()]}
-                                    <div class="flex items-center gap-2 {levelClass[entry.level.toLowerCase()]}">
-                                        {#if Icon}
-                                            <Icon class="size-5"/>
-                                        {/if}
-                                        <span class="capitalize">{entry.level}</span>
-                                    </div>
+                                    <Skeleton class="h-4 w-16"/>
                                 </Table.Cell>
 
                                 <!-- Timestamp -->
-                                <Table.Cell class="whitespace-nowrap">
-                                    {entry.timestampFormatted ?? '—'}
+                                <Table.Cell>
+                                    <Skeleton class="h-4 w-32"/>
                                 </Table.Cell>
 
-                                <!-- Description -->
-                                <Table.Cell class="whitespace-nowrap">
-                                    {entry.message}
+                                <!-- Message -->
+                                <Table.Cell>
+                                    <Skeleton class="h-4 w-full"/>
                                 </Table.Cell>
                             </Table.Row>
                         {/each}
@@ -252,7 +289,7 @@
 </section>
 
 <Dialog.Root open={selectedEntry !== null} onOpenChange={(open) => { if (!open) selectedEntry = null; }}>
-    <Dialog.Content class="sm:max-w-7xl">
+    <Dialog.Content class="sm:max-w-8xl">
         <Dialog.Header>
             <Dialog.Title class="flex items-center gap-4">
                 {#if selectedEntry}
