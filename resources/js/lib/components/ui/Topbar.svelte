@@ -2,12 +2,26 @@
     import { Sun, Moon, Flame } from 'lucide-svelte';
 
     interface Props {
-        isDark?: boolean;
-        toggleTheme?: () => void;
         projectName?: string;
     }
 
-    let { isDark = false, toggleTheme = () => {}, projectName = 'My Project' }: Props = $props();
+    let { projectName = 'My Project' }: Props = $props();
+
+    let isDark = $state(
+        typeof localStorage !== 'undefined'
+            ? localStorage.getItem('sentinel-theme') === 'dark' ||
+              (!localStorage.getItem('sentinel-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)
+            : false
+    );
+
+    $effect(() => {
+        document.documentElement.classList.toggle('dark', isDark);
+        localStorage.setItem('sentinel-theme', isDark ? 'dark' : 'light');
+    });
+
+    function toggleTheme() {
+        isDark = !isDark;
+    }
 </script>
 
 <header class="sticky top-0 z-40 border-b border-border bg-sidebar backdrop-blur-sm">

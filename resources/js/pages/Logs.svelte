@@ -132,8 +132,6 @@
 </script>
 
 <section>
-    <h2 class="font-semibold text-foreground mb-4">Logs</h2>
-
     <Card.Root>
         <Card.Header class="h-auto py-6 flex-col">
 
@@ -145,7 +143,7 @@
                         {@const Icon = lvl === '' ? null : levelIcon[lvl]}
                         <Button
                                 onclick={() => { activeLevel = lvl; page = 1; }}
-                                variant={activeLevel === lvl ? (levelVariant[lvl] ?? 'default') : 'outline'}
+                                variant={activeLevel === lvl ? 'default' : 'outline'}
                                 class="capitalize"
                         >
                             {#if Icon}

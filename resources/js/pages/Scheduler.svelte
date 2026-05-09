@@ -69,8 +69,6 @@
 </script>
 
 <section>
-    <h2 class="font-semibold text-foreground mb-4">Scheduler</h2>
-
     <Card.Root>
         <Card.Content class="p-0">
             <Table.Root>

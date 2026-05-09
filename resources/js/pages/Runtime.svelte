@@ -22,8 +22,6 @@
 </script>
 
 <section class="{className} h-full flex flex-col">
-    <h2 class="font-semibold text-foreground mb-4">Runtime</h2>
-
     <Card.Root class="h-full">
         {#if initialData}
             <Card.Header>

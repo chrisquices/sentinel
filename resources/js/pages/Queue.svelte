@@ -28,7 +28,13 @@
     type Filter = typeof filters[number];
 
     let queueData = $state<QueueData | null>(null);
-    let activeFilter = $state<Filter>('pending');
+    let activeFilter = $state<Filter>(
+        (typeof localStorage !== 'undefined' ? localStorage.getItem('queue:filter') as Filter : null) ?? 'pending'
+    );
+
+    $effect(() => {
+        localStorage.setItem('queue:filter', activeFilter);
+    });
 
     let filteredJobs = $derived(
         queueData?.jobs.filter(j => j.status === activeFilter) ?? []
@@ -49,11 +55,6 @@
 </script>
 
 <section>
-
-    <!-- Queue -->
-    <h2 class="font-semibold text-foreground mb-4">Queue</h2>
-
-    <!-- Jobs -->
     <Card.Root>
         <Card.Header>
             <!-- Filter Button Group -->
