@@ -1,0 +1,19 @@
+name: Retag
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  retag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Move tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag -f v1.0.0
+          git push origin v1.0.0 --force
