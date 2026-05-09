@@ -1,36 +1,29 @@
 <script lang="ts">
-    import {onMount} from 'svelte';
+    import {onMount, untrack} from 'svelte';
     import * as Select from '$lib/components/ui/select';
     import * as Card from '$lib/components/ui/card';
     import * as Table from '$lib/components/ui/table';
     import * as Dialog from '$lib/components/ui/dialog';
+    import * as Pagination from '$lib/components/ui/pagination';
     import {Badge} from '$lib/components/ui/badge';
     import {Button} from '$lib/components/ui/button';
     import * as ButtonGroup from '$lib/components/ui/button-group';
-    import type {LogChannel, LogEntry, LogEntriesResult, LogTailResult} from '$lib/types';
     import {fetchLogEntries, fetchLogTail, clearLog} from '$lib/api';
-    import {Trash2} from 'lucide-svelte';
-    import { type BadgeVariant } from '$lib/components/ui/badge';
+    import {Trash2, RefreshCw} from 'lucide-svelte';
+    import {type BadgeVariant} from '$lib/components/ui/badge';
+    import {AlertTriangle, Bug, Info, AlertCircle, Flame} from 'lucide-svelte';
+    import type {ComponentType} from 'svelte';
+    import type {LogChannel, LogEntry, LogEntriesResult, LogTailResult, LogInitialData} from '$lib/types';
 
     interface Props {
-        initialChannels?: LogChannel[] | null;
+        initialData?: LogInitialData | null;
     }
 
-    let {initialChannels = null}: Props = $props();
+    let {initialData}: Props = $props();
 
-    const levels = ['', 'error', 'warning', 'info', 'debug'] as const;
-    type Level = typeof levels[number];
-
-    let channels: LogChannel[] = $derived(initialChannels ?? []);
-    let activeChannel = $state('');
-    let activeLevel = $state<Level>('');
-    let entries = $state<LogEntry[]>([]);
-    let cursor = $state<number | null>(null);
-    let hasMore = $state(false);
-    let tailCursor = $state(0);
-    let loading = $state(false);
-    let clearing = $state(false);
-    let selectedEntry = $state<LogEntry | null>(null);
+    // region --- Channel Selector --------------------------------------------------------------------------------------
+    let channels: LogChannel[] = $derived(initialData?.channels ?? []);
+    let activeChannel = $state(localStorage.getItem('logs:channel') ?? '');
 
     $effect(() => {
         if (channels.length > 0 && activeChannel === '') {
@@ -39,57 +32,19 @@
     });
 
     $effect(() => {
-        const ch = activeChannel;
-        const lvl = activeLevel;
-        if (ch) {
-            void load(ch, lvl, null, true);
-        }
+        if (activeChannel) localStorage.setItem('logs:channel', activeChannel);
     });
+    // endregion
 
-    async function load(ch: string, lvl: string, cur: number | null, reset: boolean) {
-        if (loading) return;
-        loading = true;
-        try {
-            const result = await fetchLogEntries(ch, cur, lvl) as LogEntriesResult;
-            entries    = reset ? result.entries : [...entries, ...result.entries];
-            cursor     = result.cursor;
-            hasMore    = result.hasMore;
-            tailCursor = result.tailCursor;
-        } finally {
-            loading = false;
-        }
-    }
+    // region --- Level Filter -----------------------------------------------------------------------------------------
+    const levels = ['', 'error', 'warning', 'info', 'debug'] as const;
+    type Level = typeof levels[number];
 
-    async function handleClear() {
-        if (!confirm(`Clear all log entries for "${activeChannel}"?`)) return;
-        clearing = true;
-        try {
-            await clearLog(activeChannel);
-            entries    = [];
-            cursor     = null;
-            hasMore    = false;
-            tailCursor = 0;
-        } finally {
-            clearing = false;
-        }
-    }
+    let activeLevel = $state<Level>((localStorage.getItem('logs:level') as Level) ?? '');
 
-    onMount(() => {
-        const interval = setInterval(async () => {
-            if (!activeChannel || tailCursor === 0) return;
-            const result = await fetchLogTail(activeChannel, tailCursor, activeLevel) as LogTailResult;
-            if (result.entries.length > 0) {
-                entries = [...result.entries, ...entries];
-            }
-            tailCursor = result.tailCursor;
-        }, 5000);
-
-        return () => clearInterval(interval);
+    $effect(() => {
+        localStorage.setItem('logs:level', activeLevel);
     });
-
-
-    import { AlertTriangle, Bug, Info, AlertCircle, Flame } from 'lucide-svelte';
-    import type { ComponentType } from 'svelte';
 
     const levelVariant: Record<string, BadgeVariant> = {
         emergency: 'destructive',
@@ -99,7 +54,7 @@
         warning: 'warning',
         notice: 'info',
         info: 'info',
-        debug: 'ghost',
+        debug: 'secondary',
     };
 
     const levelIcon: Record<string, ComponentType> = {
@@ -123,48 +78,93 @@
         info: 'text-info',
         debug: 'text-muted-foreground',
     };
+    // endregion
+
+    // region --- Logs --------------------------------------------------------------------------------------------------
+    let entries = $state<LogEntry[]>(initialData?.entries ?? []);
+    let tailCursor = $state<number>(initialData?.tailCursor ?? 0);
+    let total = $state<number>(initialData?.total ?? 0);
+    let loading = $state(false);
+    const perPage = 20;
+    let page = $state(1);
+
+    $effect(() => {
+        const ch = activeChannel;
+        const lvl = activeLevel;
+        const pg = page;
+        if (ch) {
+            untrack(() => void loadEntries(ch, pg, lvl));
+        }
+    });
+
+    async function loadEntries(ch: string, pg: number, lvl: string) {
+        if (loading) return;
+        loading = true;
+        try {
+            const result = await fetchLogEntries(ch, pg, perPage, lvl) as LogEntriesResult;
+            entries = result.entries;
+            total = result.total;
+            tailCursor = result.tailCursor;
+        } finally {
+            loading = false;
+        }
+    }
+
+    function refresh() {
+        void loadEntries(activeChannel, page, activeLevel);
+    }
+
+    // endregion
+
+    // region --- Log Dialog --------------------------------------------------------------------------------------------
+    let selectedEntry = $state<LogEntry | null>(null);
+
+    // endregion
 </script>
 
 <section>
     <h2 class="font-semibold text-foreground mb-4">Logs</h2>
 
     <Card.Root>
-        <Card.Header>
+        <Card.Header class="h-auto py-6 flex-col">
+
+            <div class="flex flex-row items-center justify-between w-full">
+
+                <!-- Level Filter -->
+                <ButtonGroup.Root>
+                    {#each levels as lvl}
+                        {@const Icon = lvl === '' ? null : levelIcon[lvl]}
+                        <Button
+                                onclick={() => { activeLevel = lvl; page = 1; }}
+                                variant={activeLevel === lvl ? (levelVariant[lvl] ?? 'default') : 'outline'}
+                                class="capitalize"
+                        >
+                            {#if Icon}
+                                <Icon class="size-4 mr-1"/>
+                            {/if}
+                            {lvl === '' ? 'All' : lvl}
+                        </Button>
+                    {/each}
+                </ButtonGroup.Root>
+
+                <Button variant="secondary" onclick={refresh} disabled={loading}>
+                    <RefreshCw class="size-4 {loading ? 'animate-spin' : ''}"/>
+                    Refresh
+                </Button>
+            </div>
 
             <!-- Channel Selector -->
-            {#if channels.length > 0}
-                <Select.Root type="single" bind:value={activeChannel}>
-                    <Select.Trigger class="w-56">
-                        {activeChannel ? `Log: ${activeChannel}` : 'Select channel'}
-                    </Select.Trigger>
-                    <Select.Content>
-                        {#each channels as ch}
-                            <Select.Item value={ch.name}>Log: {ch.name}</Select.Item>
-                        {/each}
-                    </Select.Content>
-                </Select.Root>
-            {/if}
-
-            <!-- Level Filter -->
-            <ButtonGroup.Root>
-                {#each levels as lvl}
-                    {@const Icon = lvl === '' ? null : levelIcon[lvl]}
+            <div class="flex flex-wrap gap-2 w-full">
+                {#each channels as channel}
                     <Button
-                            onclick={() => activeLevel = lvl}
-                            variant={activeLevel === lvl ? (levelVariant[lvl] ?? 'default') : 'outline'}
+                            onclick={() => { activeChannel = channel.name; page = 1; }}
+                            variant={activeChannel === channel.name ? 'default' : 'outline'}
                             class="capitalize"
                     >
-                        {#if Icon}<Icon class="size-5" />{/if}
-                        {lvl === '' ? 'All' : lvl}
+                        {channel.name}
                     </Button>
                 {/each}
-            </ButtonGroup.Root>
-
-            <!-- Clear Button -->
-            <Button onclick={handleClear} variant="secondary" class="ml-auto" disabled={clearing || !activeChannel}>
-                <Trash2 class="size-3.5"/>
-                Clear
-            </Button>
+            </div>
         </Card.Header>
 
         <Card.Content class="p-0">
@@ -191,7 +191,7 @@
                             </Table.Cell>
                         </Table.Row>
                     {:else}
-                        {#each entries as entry, i}
+                        {#each entries as entry}
                             <Table.Row
                                     class="cursor-pointer"
                                     onclick={() => selectedEntry = entry}
@@ -200,14 +200,16 @@
                                 <Table.Cell>
                                     {@const Icon = levelIcon[entry.level.toLowerCase()]}
                                     <div class="flex items-center gap-2 {levelClass[entry.level.toLowerCase()]}">
-                                        {#if Icon}<Icon class="size-5" />{/if}
+                                        {#if Icon}
+                                            <Icon class="size-5"/>
+                                        {/if}
                                         <span class="capitalize">{entry.level}</span>
                                     </div>
                                 </Table.Cell>
 
                                 <!-- Timestamp -->
                                 <Table.Cell class="whitespace-nowrap">
-                                    {entry.timestamp ?? '—'}
+                                    {entry.timestampFormatted ?? '—'}
                                 </Table.Cell>
 
                                 <!-- Description -->
@@ -220,6 +222,32 @@
                 </Table.Body>
             </Table.Root>
         </Card.Content>
+
+        {#if total > perPage}
+            <Card.Footer class="justify-center border-t">
+                <Pagination.Root count={total} {perPage} bind:page>
+                    {#snippet children({pages, currentPage})}
+                        <Pagination.Content>
+                            <Pagination.Item>
+                                <Pagination.PrevButton/>
+                            </Pagination.Item>
+                            {#each pages as pg (pg.key)}
+                                <Pagination.Item>
+                                    {#if pg.type === 'ellipsis'}
+                                        <Pagination.Ellipsis/>
+                                    {:else}
+                                        <Pagination.Link page={pg} isActive={currentPage === pg.value}/>
+                                    {/if}
+                                </Pagination.Item>
+                            {/each}
+                            <Pagination.Item>
+                                <Pagination.NextButton/>
+                            </Pagination.Item>
+                        </Pagination.Content>
+                    {/snippet}
+                </Pagination.Root>
+            </Card.Footer>
+        {/if}
     </Card.Root>
 </section>
 
@@ -230,21 +258,26 @@
                 {#if selectedEntry}
                     {@const Icon = levelIcon[selectedEntry.level.toLowerCase()]}
                     <span class="flex items-center gap-2 {levelClass[selectedEntry.level.toLowerCase()]} capitalize">
-                        {#if Icon}<Icon class="size-5" />{/if}
+                        {#if Icon}<Icon class="size-5"/>{/if}
                         {selectedEntry.level}
                     </span>
 
-                    {#if selectedEntry?.timestamp}
-                        <span>{selectedEntry.timestamp}</span>
+                    {#if selectedEntry?.timestampFormatted}
+                        <span>{selectedEntry.timestampFormatted}</span>
                     {/if}
-
-                    <span>{selectedEntry.message}</span>
                 {/if}
             </Dialog.Title>
+            {#if selectedEntry?.message}
+                <Dialog.Description>
+                    {selectedEntry.message}
+                </Dialog.Description>
+            {/if}
         </Dialog.Header>
         <Dialog.Body>
             {#if selectedEntry && selectedEntry.extra}
                 <pre class="overflow-x-auto whitespace-pre-wrap break-words">{selectedEntry.extra}</pre>
+            {:else}
+                <pre class="text-center py-12">No message available.</pre>
             {/if}
         </Dialog.Body>
     </Dialog.Content>

@@ -34,21 +34,20 @@ export async function fetchScheduler(): Promise<unknown> {
 
 // region --- Logs ----------------------------------------------------------------------------------------------------
 
-export async function fetchLogEntries(channel: string, cursor: number | null = null, level: string = ''): Promise<unknown> {
-    const params = new URLSearchParams({channel, level});
-    if (cursor !== null) params.set('cursor', String(cursor));
-    const res = await fetch(`${base()}/logs/entries?${params}`, {headers: headers()});
+export async function fetchLogEntries(channel: string, page: number = 1, perPage: number = 25, level: string = ''): Promise<unknown> {
+    const params = new URLSearchParams({ page: String(page), perPage: String(perPage), level });
+    const res = await fetch(`${base()}/logs/${encodeURIComponent(channel)}/entries?${params}`, {headers: headers()});
     return res.json();
 }
 
 export async function fetchLogTail(channel: string, tailCursor: number, level: string = ''): Promise<unknown> {
-    const params = new URLSearchParams({channel, level, tail_cursor: String(tailCursor)});
-    const res = await fetch(`${base()}/logs/entries?${params}`, {headers: headers()});
+    const params = new URLSearchParams({ tailCursor: String(tailCursor), level });
+    const res = await fetch(`${base()}/logs/${encodeURIComponent(channel)}/tail?${params}`, {headers: headers()});
     return res.json();
 }
 
 export async function clearLog(channel: string): Promise<unknown> {
-    const res = await fetch(`${base()}/logs/clear?channel=${encodeURIComponent(channel)}`, {
+    const res = await fetch(`${base()}/logs/${encodeURIComponent(channel)}/clear`, {
         method: 'DELETE',
         headers: headers(),
     });

@@ -11,6 +11,16 @@ use Illuminate\Support\Facades\DB;
 
 class SchedulerService
 {
+    public static function get(): array
+    {
+        $events = self::getEvents();
+
+
+        return [
+            'events' => $events
+        ];
+    }
+
     public static function getEvents(): array
     {
         try {
@@ -45,7 +55,7 @@ class SchedulerService
             ];
         }
 
-        return ['events' => $events];
+        return $events;
     }
 
     public static function recordRun(ScheduledTaskFinished $event): void

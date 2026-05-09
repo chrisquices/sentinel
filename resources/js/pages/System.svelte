@@ -2,29 +2,26 @@
     import {onMount} from 'svelte';
     import * as Card from '$lib/components/ui/card';
     import {Cpu} from 'lucide-svelte';
-    import type {SystemData} from '$lib/types';
+    import type {SystemData, SystemInitialData} from '$lib/types';
+    import {fetchSystem} from '$lib/api';
     import Chart from 'chart.js/auto';
 
     interface Props {
-        initialData?: any;
+        initialData?: SystemInitialData | null;
         class?: string;
     }
 
-    let {initialData: _initialData = null, class: className = ''}: Props = $props();
+    let {initialData = null, class: className = ''}: Props = $props();
 
     // region --- General ----------------------------------------------------------------------------------------------
-    const path = (window as any).__vulcanSentinel?.basePath ?? 'vulcan-sentinel';
-
     function getPrimaryColor() {
         return getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
     }
-
     // endregion
 
     // region --- System -----------------------------------------------------------------------------------------------
-    let systemData: SystemData | null = $state((window as any).__vulcanSentinel?.system ?? null);
+    let systemData = $state<SystemData | null>(initialData);
 
-    // CPU History Chart
     let canvas: HTMLCanvasElement;
     let chart: Chart;
     let tooltipEl: HTMLDivElement;
@@ -70,16 +67,15 @@
                             if (!history) return;
 
                             tooltipEl.innerHTML = `
-                            <div class="text-foreground text-sm text-right flex items-center justify-between">
-                                <span>Time</span>
-                                <span>${history.timeFormatted}</span>
-                            </div>
-
-                            <div class="text-foreground text-sm text-right flex items-center justify-between">
-                                <span>CPU</span>
-                                <span>${history.usageFormatted}</span>
-                            </div>
-                        `;
+                                <div class="text-foreground text-sm text-right flex items-center justify-between">
+                                    <span>Time</span>
+                                    <span>${history.timeFormatted}</span>
+                                </div>
+                                <div class="text-foreground text-sm text-right flex items-center justify-between">
+                                    <span>CPU</span>
+                                    <span>${history.usageFormatted}</span>
+                                </div>
+                            `;
 
                             const rect = chart.canvas.getBoundingClientRect();
                             tooltipEl.style.opacity = '1';
@@ -105,10 +101,10 @@
 
     onMount(() => {
         initChart();
+        updateChart();
 
         const interval = setInterval(async () => {
-            const res = await fetch(`/${path}/api/system`);
-            systemData = await res.json();
+            systemData = await fetchSystem() as SystemData;
             updateChart();
         }, 1000);
 
@@ -117,7 +113,6 @@
             chart?.destroy();
         };
     });
-
     // endregion
 </script>
 

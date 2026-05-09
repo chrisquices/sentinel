@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Chrisquices\VulcanSentinel\Http\Controllers\IndexController;
 use Chrisquices\VulcanSentinel\Http\Controllers\LogController;
 use Chrisquices\VulcanSentinel\Http\Controllers\QueueController;
 use Chrisquices\VulcanSentinel\Http\Controllers\RuntimeController;
@@ -12,7 +13,7 @@ Route::group([
     'middleware' => config('vulcan-sentinel.middleware', ['web']),
     'as' => 'vulcan-sentinel.',
 ], function () {
-    Route::get('/', [SystemController::class, 'index'])->name('index');
+    Route::get('/', IndexController::class)->name('index');
 
     Route::prefix('api')->name('api.')->group(function () {
 
@@ -31,13 +32,6 @@ Route::group([
             Route::get('/', [SchedulerController::class, 'show'])->name('show');
         });
 
-        // Logs
-        Route::prefix('logs')->name('logs.')->group(function () {
-            Route::get('/channels', [LogController::class, 'channels'])->name('channels');
-            Route::get('/entries', [LogController::class, 'entries'])->name('entries');
-            Route::delete('/clear', [LogController::class, 'clear'])->name('clear');
-        });
-
         // Queue
         Route::prefix('queue')->name('queue.')->group(function () {
             Route::get('/', [QueueController::class, 'show'])->name('show');
@@ -54,6 +48,14 @@ Route::group([
                 Route::post('/{id}/retry', [QueueController::class, 'retryFailedJob'])->name('retry');
                 Route::delete('/{id}', [QueueController::class, 'deleteFailedJob'])->name('delete');
             });
+        });
+
+        // Logs
+        Route::prefix('logs')->name('logs.')->group(function () {
+            Route::get('/channels', [LogController::class, 'channels'])->name('channels');
+            Route::get('/{channel}/entries', [LogController::class, 'entries'])->name('entries');
+            Route::get('/{channel}/tail', [LogController::class, 'tail'])->name('tail');
+            Route::delete('/{channel}/clear', [LogController::class, 'clear'])->name('clear');
         });
     });
 });

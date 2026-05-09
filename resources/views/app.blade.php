@@ -10,17 +10,17 @@
             projectName: @json(config('vulcan-sentinel.project_name', 'My Project')),
             basePath: @json(config('vulcan-sentinel.path', 'vulcan-sentinel')),
             csrfToken: @json(csrf_token()),
-            system: @json($system),
-            scheduler: @json($scheduler),
-            queue: @json($queue),
-            channels: @json($channels),
+            systemData: @json($systemData),
+            schedulerData: @json($schedulerData),
+            queueData: @json($queueData),
+            logsData: @json($logsData),
         };
     </script>
     <link rel="stylesheet" href="{{ asset('vendor/vulcan-sentinel/assets/app.css') }}">
 </head>
-<body">
-    <div id="app"></div>
-    <script type="module" src="{{ asset('vendor/vulcan-sentinel/assets/app.js') }}"></script>
+<body>
+<div id="app"></div>
+<script type="module" src="{{ asset('vendor/vulcan-sentinel/assets/app.js') }}"></script>
 </body>
 </html>
 

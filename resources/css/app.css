@@ -7,6 +7,8 @@
     --foreground: oklch(0.1443 0.0191 261.1564);
     --card: oklch(0.9897 0.0051 247.8755);
     --card-foreground: oklch(0.1443 0.0191 261.1564);
+    --ultra-card: oklch(0.2292 0.0304 259.0329);
+    --ultra-card-foreground: oklch(0.2292 0.0304 259.0329);
     --popover: oklch(0.9897 0.0051 247.8755);
     --popover-foreground: oklch(0.1443 0.0191 261.1564);
     --primary: oklch(0.2038 0.0264 260.9332);
@@ -56,11 +58,13 @@
     --foreground: oklch(0.8092 0.0101 238.5151);
     --card: oklch(0.2610 0.0307 254.7604);
     --card-foreground: oklch(0.8092 0.0101 238.5151);
+    --ultra-card: oklch(0.222 0.034 261.473);
+    --ultra-card-foreground: oklch(0.2292 0.0304 259.0329);
     --popover: oklch(0.2897 0.0338 255.7937);
     --popover-foreground: oklch(0.8092 0.0101 238.5151);
     --primary: oklch(0.8993 0.0119 239.9205);
     --primary-foreground: oklch(0.2494 0.0304 256.8623);
-    --secondary: oklch(0.3056 0.0334 255.7755);
+    --secondary: oklch(0.313 0.038 251.86);
     --secondary-foreground: oklch(0.8092 0.0101 238.5151);
     --muted: oklch(0.2947 0.0308 258.3315);
     --muted-foreground: oklch(0.6604 0.0245 248.1982);
@@ -81,10 +85,6 @@
     --radius: 0.5rem;
 }
 
-@theme {
-    --width-8xl: 88rem;
-}
-
 @layer utilities {
     .max-w-8xl {
         max-width: 88rem;
@@ -96,6 +96,8 @@
     --color-foreground: var(--foreground);
     --color-card: var(--card);
     --color-card-foreground: var(--card-foreground);
+    --color-ultra-card: var(--ultra-card);
+    --color-ultra-card-foreground: var(--ultra-card-foreground);
     --color-popover: var(--popover);
     --color-popover-foreground: var(--popover-foreground);
     --color-primary: var(--primary);
@@ -153,4 +155,10 @@
     html {
         @apply font-mono! text-sm!;
     }
+}
+
+/* For modern browsers (Firefox) */
+* {
+    scrollbar-color: color-mix(in oklch, var(--primary) 20%, transparent) transparent;
+    scrollbar-width: thin;
 }

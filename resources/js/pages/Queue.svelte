@@ -2,12 +2,13 @@
     import {onMount} from 'svelte';
     import * as Card from '$lib/components/ui/card';
     import * as Table from '$lib/components/ui/table';
-    import type {QueueData, Job} from '$lib/types';
+    import type {QueueData, QueueInitialData, Job} from '$lib/types';
     import {Clock, Loader, CheckCheck, AlertCircle} from 'lucide-svelte';
     import * as ButtonGroup from '$lib/components/ui/button-group';
     import {Button} from '$lib/components/ui/button';
     import {RotateCcw, Trash2} from 'lucide-svelte';
     import {
+        fetchQueue,
         clearCompletedJobs,
         clearFailedJobs,
         retryFailedJob,
@@ -16,17 +17,16 @@
     } from "$lib/api";
 
     interface Props {
-        initialData?: QueueData | null;
+        initialData?: QueueInitialData | null;
     }
 
     let {initialData = null}: Props = $props();
 
-    const path = (window as any).__vulcanSentinel?.basePath ?? 'vulcan-sentinel';
-
+    // region --- Queue ------------------------------------------------------------------------------------------------
     const filters = ['pending', 'processing', 'completed', 'failed'] as const;
     type Filter = typeof filters[number];
 
-    let queueData: QueueData | null = $state(initialData);
+    let queueData = $state<QueueData | null>(initialData);
     let activeFilter = $state<Filter>('pending');
 
     let filteredJobs = $derived(
@@ -35,12 +35,12 @@
 
     onMount(() => {
         const interval = setInterval(async () => {
-            const res = await fetch(`/${path}/api/queue`);
-            queueData = await res.json();
-        }, 1000);
+            queueData = await fetchQueue() as QueueData;
+        }, 3000);
 
         return () => clearInterval(interval);
     });
+    // endregion
 </script>
 
 <section>
@@ -59,13 +59,13 @@
                             variant={activeFilter === filter ? 'default' : 'outline'}
                     >
                         {#if filter === 'pending'}
-                            <Clock class="size-3.5"/>
+                            <Clock class="size-4"/>
                         {:else if filter === 'processing'}
-                            <Loader class="size-3.5 {(queueData?.summary.processing ?? 0) > 0 ? 'animate-spin' : ''}"/>
+                            <Loader class="size-4 {(queueData?.summary.processing ?? 0) > 0 ? 'animate-spin' : ''}"/>
                         {:else if filter === 'completed'}
-                            <CheckCheck class="size-3.5"/>
+                            <CheckCheck class="size-4"/>
                         {:else}
-                            <AlertCircle class="size-3.5"/>
+                            <AlertCircle class="size-4"/>
                         {/if}
                         {filter.charAt(0).toUpperCase() + filter.slice(1)}
                         <span class="ml-1 opacity-60">{queueData?.summary[filter] ?? 0}</span>
@@ -79,7 +79,7 @@
                 <!-- Clear Completed Jobs -->
                 {#if activeFilter === 'completed'}
                     <Button onclick={() => clearCompletedJobs()} variant="secondary">
-                        <Trash2 class="size-3.5"/>
+                        <Trash2 class="size-4"/>
                         Clear Completed Queue
                     </Button>
                 {/if}
@@ -87,7 +87,7 @@
                 <!-- Clear Failed Jobs -->
                 {#if activeFilter === 'failed'}
                     <Button onclick={() => clearFailedJobs()} variant="secondary">
-                        <Trash2 class="size-3.5"/>
+                        <Trash2 class="size-4"/>
                         Clear Failed Queue
                     </Button>
                 {/if}

@@ -9,6 +9,8 @@ class SchedulerController extends Controller
 {
     public function show()
     {
-        return response()->json(SchedulerService::getEvents());
+        $schedulerData = SchedulerService::getEvents();
+
+        return response()->json($schedulerData);
     }
 }

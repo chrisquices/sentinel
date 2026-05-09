@@ -13,44 +13,27 @@ class LogController extends Controller
         return response()->json(LogService::getChannels());
     }
 
-    public function entries(Request $request)
+    public function entries(Request $request, string $channel)
     {
-        $channel     = $request->query('channel', '');
-        $level       = $request->query('level', '');
-        $tailCursor  = $request->query('tail_cursor');
-        $cursor      = $request->query('cursor');
+        $page    = (int) $request->query('page', 1);
+        $perPage = (int) $request->query('perPage', 25);
+        $level   = $request->query('level') ?: null;
 
-        $channelData = $this->resolveChannel($channel);
-        if (!$channelData) {
-            return response()->json(['error' => 'Channel not found'], 404);
-        }
-
-        if ($tailCursor !== null) {
-            return response()->json(LogService::getTailEntries($channelData['path'], (int) $tailCursor, $level));
-        }
-
-        return response()->json(LogService::getEntries(
-            $channelData['path'],
-            $cursor !== null ? (int) $cursor : null,
-            20,
-            $level,
-        ));
+        return response()->json(LogService::getLogs($channel, $page, $perPage, $level));
     }
 
-    public function clear(Request $request)
+    public function tail(Request $request, string $channel)
     {
-        $channel     = $request->query('channel', '');
-        $channelData = $this->resolveChannel($channel);
+        $tailCursor = (int) $request->query('tailCursor', 0);
+        $level      = $request->query('level') ?: null;
 
-        if (!$channelData) {
-            return response()->json(['error' => 'Channel not found'], 404);
-        }
-
-        return response()->json(['success' => LogService::clearLog($channelData['path'])]);
+        return response()->json(LogService::getLogTail($channel, $tailCursor, $level));
     }
 
-    private function resolveChannel(string $name): ?array
+    public function clear(string $channel)
     {
-        return collect(LogService::getChannels())->firstWhere('name', $name);
+        LogService::clearLog($channel);
+
+        return response()->noContent();
     }
 }

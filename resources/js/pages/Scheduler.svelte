@@ -3,17 +3,18 @@
     import * as Card from '$lib/components/ui/card';
     import * as Table from '$lib/components/ui/table';
     import {Badge} from '$lib/components/ui/badge';
-    import type {SchedulerData, SchedulerTask} from '$lib/types';
+    import type {SchedulerInitialData, SchedulerData, SchedulerTask} from '$lib/types';
     import {fetchScheduler} from '$lib/api';
     import {CalendarClock} from 'lucide-svelte';
 
     interface Props {
-        initialData?: SchedulerData | null;
+        initialData?: SchedulerInitialData | null;
     }
 
     let {initialData = null}: Props = $props();
 
-    let tasks: SchedulerTask[] = $state(initialData?.events ?? []);
+    // region --- Scheduler --------------------------------------------------------------------------------------------
+    let tasks = $state<SchedulerTask[]>(initialData?.events ?? []);
     let now = $state(Date.now());
 
     function formatCountdown(isoString: string): string {
@@ -49,8 +50,8 @@
         }, 1000);
 
         const pollInterval = setInterval(async () => {
-            const res = await fetchScheduler();
-            tasks = (res as SchedulerData).events ?? [];
+            const res = await fetchScheduler() as SchedulerData;
+            tasks = res.events ?? [];
         }, 10000);
 
         return () => {
@@ -58,6 +59,7 @@
             clearInterval(pollInterval);
         };
     });
+    // endregion
 </script>
 
 <section>

@@ -8,12 +8,31 @@ class LogService
 {
     private const CHUNK_SIZE = 524288; // 512 KB
 
+    public static function get(): array
+    {
+        $channels = self::getChannels();
+        $first = $channels[0]['name'] ?? null;
+
+        if (!$first) {
+            return ['channels' => [], 'entries' => [], 'total' => 0, 'tailCursor' => 0];
+        }
+
+        $logs = self::getLogs($first, 1, 25, null);
+
+        return [
+            'channels' => $channels,
+            'entries' => $logs['entries'],
+            'total' => $logs['total'],
+            'tailCursor' => $logs['tailCursor'],
+        ];
+    }
+
     // region --- Channels -------------------------------------------------------------------------------------------------
 
     public static function getChannels(): array
     {
         $channels = config('logging.channels', []);
-        $result   = [];
+        $result = [];
 
         foreach ($channels as $name => $config) {
             $driver = $config['driver'] ?? null;
@@ -34,13 +53,24 @@ class LogService
         return $result;
     }
 
+    private static function getChannelByName(string $name): ?array
+    {
+        foreach (self::getChannels() as $channel) {
+            if ($channel['name'] === $name) {
+                return $channel;
+            }
+        }
+
+        return null;
+    }
+
     private static function resolveChannel(string $name, array $config): array
     {
         $driver = $config['driver'];
-        $path   = $config['path'] ?? storage_path("logs/{$name}.log");
+        $path = $config['path'] ?? storage_path("logs/{$name}.log");
 
         if ($driver === 'daily' && !file_exists($path)) {
-            $info     = pathinfo($path);
+            $info = pathinfo($path);
             $resolved = ($info['dirname'] ?? '') . DIRECTORY_SEPARATOR
                 . ($info['filename'] ?? 'laravel') . '-' . date('Y-m-d') . '.' . ($info['extension'] ?? 'log');
             if (file_exists($resolved)) {
@@ -48,149 +78,185 @@ class LogService
             }
         }
 
+        $format = LogHelper::detectLogFormat($path);
+
         return [
-            'name'   => $name,
-            'driver' => $driver,
-            'path'   => $path,
+            'name' => $name,
+            'driver' => $format,
+            'path' => $path,
         ];
     }
 
     // endregion
 
-    // region --- Entries --------------------------------------------------------------------------------------------------
-
-    public static function getEntries(string $path, ?int $cursor = null, int $limit = 20, string $level = ''): array
+    // region --- Logs -----------------------------------------------------------------------------------------------------
+    private static function buildLogIndex(string $path, string $driver): array
     {
-        if (!file_exists($path) || filesize($path) === 0) {
-            return ['entries' => [], 'cursor' => null, 'hasMore' => false, 'tailCursor' => 0];
+        $handle = fopen($path, 'rb');
+        if (!$handle) return [];
+
+        $offsets = [];
+        $offset  = 0;
+
+        while (!feof($handle)) {
+            $line = fgets($handle);
+            if ($line === false) break;
+
+            if ($driver === 'json') {
+                if (str_starts_with(ltrim($line), '{')) {
+                    $decoded = json_decode($line, true);
+                    $level   = strtolower($decoded['level_name'] ?? $decoded['level'] ?? 'info');
+                    $offsets[] = ['offset' => $offset, 'level' => $level];
+                }
+            } else {
+                if (preg_match('/^\[(\d{4}-\d{2}-\d{2}).*\]\s+\S+\.(\w+):/i', $line, $m)) {
+                    $offsets[] = ['offset' => $offset, 'level' => strtolower($m[2])];
+                }
+            }
+
+            $offset = ftell($handle);
         }
 
+        fclose($handle);
+
+        return $offsets;
+    }
+
+    private static function getLogIndex(string $channel, string $path, string $driver): array
+    {
         $fileSize = filesize($path);
-        $readEnd  = min($cursor ?? $fileSize, $fileSize); // rotation guard
+        $cacheKey = self::logCacheKey($channel);
 
-        if ($readEnd === 0) {
-            return ['entries' => [], 'cursor' => null, 'hasMore' => false, 'tailCursor' => $fileSize];
+        $cached = cache()->get($cacheKey);
+
+        if ($cached && $cached['fileSize'] === $fileSize) {
+            return $cached['offsets'];
         }
 
-        $chunkStart = max(0, $readEnd - self::CHUNK_SIZE);
+        $offsets = self::buildLogIndex($path, $driver);
 
-        $fh    = fopen($path, 'rb');
-        fseek($fh, $chunkStart);
-        $chunk = fread($fh, $readEnd - $chunkStart);
-        fclose($fh);
+        cache()->put($cacheKey, ['fileSize' => $fileSize, 'offsets' => $offsets], now()->addHour());
 
-        $rawEntries = self::splitEntries($chunk);
+        return $offsets;
+    }
 
-        // First entry may be incomplete when not reading from file start
-        if ($chunkStart > 0) {
-            array_shift($rawEntries);
+    public static function getLogs(string $channel, int $page, int $perPage, ?string $level): array
+    {
+        $channelConfig = self::getChannelByName($channel);
+
+        if (!$channelConfig || !file_exists($channelConfig['path'])) {
+            return ['entries' => [], 'total' => 0, 'tailCursor' => 0];
         }
 
-        $allEntries = [];
-        foreach ($rawEntries as $raw) {
-            $entry = self::parseRaw($raw);
-            if ($level === '' || $entry['level'] === strtolower($level)) {
-                $allEntries[] = $entry;
+        $path     = $channelConfig['path'];
+        $fileSize = filesize($path);
+
+        if ($fileSize === 0) {
+            return ['entries' => [], 'total' => 0, 'tailCursor' => 0];
+        }
+
+        $allOffsets = self::getLogIndex($channel, $path, $channelConfig['driver']);
+
+        // Filter by level at index level
+        $filtered = $level
+            ? array_values(array_filter($allOffsets, fn($o) => $o['level'] === strtolower($level)))
+            : $allOffsets;
+
+        $total       = count($filtered);
+        $reversed    = array_reverse($filtered);
+        $pageOffsets = array_slice($reversed, ($page - 1) * $perPage, $perPage);
+
+        if (empty($pageOffsets)) {
+            return ['entries' => [], 'total' => $total, 'tailCursor' => $fileSize];
+        }
+
+        $handle = fopen($path, 'rb');
+        if (!$handle) {
+            return ['entries' => [], 'total' => $total, 'tailCursor' => $fileSize];
+        }
+
+        $allOffsetsFlat = array_column($allOffsets, 'offset');
+        $entries        = [];
+
+        foreach ($pageOffsets as $item) {
+            $offset   = $item['offset'];
+            $position = array_search($offset, $allOffsetsFlat);
+            $nextOffset = $allOffsets[$position + 1]['offset'] ?? $fileSize;
+
+            fseek($handle, $offset);
+            $chunk = fread($handle, $nextOffset - $offset);
+
+            $parsed = LogHelper::parseChunk($chunk, $channelConfig['driver']);
+            if (!empty($parsed)) {
+                $entries[] = $parsed[0];
             }
         }
 
-        $entries = array_slice(array_reverse($allEntries), 0, $limit);
-        $hasMore = $chunkStart > 0;
+        fclose($handle);
 
         return [
             'entries'    => $entries,
-            'cursor'     => $hasMore ? $chunkStart : null,
-            'hasMore'    => $hasMore,
+            'total'      => $total,
             'tailCursor' => $fileSize,
         ];
     }
 
-    public static function getTailEntries(string $path, int $tailCursor, string $level = ''): array
+    public static function getLogTail(string $channel, int $tailCursor, ?string $level): array
     {
-        if (!file_exists($path)) {
-            return ['entries' => [], 'tailCursor' => 0];
-        }
+        $channelConfig = self::getChannelByName($channel);
 
-        $fileSize = filesize($path);
-
-        if ($tailCursor >= $fileSize) {
+        if (!$channelConfig || !file_exists($channelConfig['path'])) {
             return ['entries' => [], 'tailCursor' => $tailCursor];
         }
 
-        $fh    = fopen($path, 'rb');
-        fseek($fh, $tailCursor);
-        $chunk = fread($fh, $fileSize - $tailCursor);
-        fclose($fh);
+        $path = $channelConfig['path'];
+        $fileSize = filesize($path);
 
-        $rawEntries = self::splitEntries($chunk);
-        $entries    = [];
-
-        foreach ($rawEntries as $raw) {
-            $entry = self::parseRaw($raw);
-            if ($level === '' || $entry['level'] === strtolower($level)) {
-                $entries[] = $entry;
-            }
+        if ($fileSize <= $tailCursor) {
+            return ['entries' => [], 'tailCursor' => $tailCursor];
         }
 
-        return ['entries' => $entries, 'tailCursor' => $fileSize];
+        $handle = fopen($path, 'rb');
+        if (!$handle) {
+            return ['entries' => [], 'tailCursor' => $tailCursor];
+        }
+
+        fseek($handle, $tailCursor);
+        $chunk = fread($handle, self::CHUNK_SIZE);
+        fclose($handle);
+
+        self::invalidateLogIndex($channel);
+
+        $entries = LogHelper::parseChunk($chunk, $channelConfig['driver']);
+
+        if ($level) {
+            $entries = array_values(array_filter($entries, fn($e) => strcasecmp($e['level'], $level) === 0));
+        }
+
+        return [
+            'entries' => $entries,
+            'tailCursor' => $fileSize,
+        ];
     }
 
-    public static function clearLog(string $path): bool
+    public static function clearLog(string $channel): void
     {
-        if (!file_exists($path)) {
-            return false;
-        }
-        file_put_contents($path, '');
-        return true;
+        $channelConfig = self::getChannelByName($channel);
+
+        if (!$channelConfig || !file_exists($channelConfig['path'])) return;
+
+        file_put_contents($channelConfig['path'], '');
+        self::invalidateLogIndex($channel);
     }
 
-    // endregion
-
-    // region --- Parsing --------------------------------------------------------------------------------------------------
-
-    private static function splitEntries(string $buffer): array
+    private static function logCacheKey(string $channel): string
     {
-        $lines   = explode("\n", $buffer);
-        $entries = [];
-        $current = [];
-
-        foreach ($lines as $line) {
-            $trimmed = rtrim($line);
-            if ($trimmed === '') continue;
-
-            if (self::isEntryStart($trimmed) && $current) {
-                $entries[] = implode("\n", $current);
-                $current   = [$trimmed];
-            } else {
-                $current[] = $trimmed;
-            }
-        }
-
-        if ($current) {
-            $entries[] = implode("\n", $current);
-        }
-
-        return $entries;
+        return "vulcan_sentinel:log_index:{$channel}";
     }
 
-    private static function isEntryStart(string $line): bool
+    private static function invalidateLogIndex(string $channel): void
     {
-        if (preg_match('/^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\]/', $line)) {
-            return true;
-        }
-        $trimmed = ltrim($line);
-        return $trimmed !== '' && $trimmed[0] === '{';
-    }
-
-    private static function parseRaw(string $raw): array
-    {
-        $lines  = explode("\n", $raw);
-        $first  = $lines[0] ?? '';
-        $format = LogHelper::detectFormat($first);
-
-        return $format === 'json'
-            ? LogHelper::parseJsonEntry($first)
-            : LogHelper::parsePlaintextEntry($lines);
+        cache()->forget(self::logCacheKey($channel));
     }
 
     // endregion

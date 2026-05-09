@@ -10,9 +10,7 @@
         class?: string;
     }
 
-    let {initialData = null, class: className = ''}: Props = $props();
-
-    let info = $derived(initialData);
+    let {initialData: info = null, class: className = ''}: Props = $props();
 
     function hitRatioClass(ratio: number | null): string {
         if (ratio === null) return 'text-muted-foreground';

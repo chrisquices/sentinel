@@ -8,6 +8,13 @@ declare global {
             scheduler?: unknown;
             queue?: unknown;
             channels?: unknown;
+            initialLogData?: {
+                entries: unknown[];
+                cursor: number | null;
+                hasMore: boolean;
+                tailCursor: number;
+            } | null;
+            initialLogPage?: number;
         };
     }
 }

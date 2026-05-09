@@ -1,0 +1,20 @@
+<script lang="ts">
+	import type { ComponentProps } from "svelte";
+	import { cn } from "$lib/utils.ts";
+	import { PaginationLink } from "./index.js";
+	import { ChevronLeft as ChevronLeftIcon } from "lucide-svelte";
+
+	type PaginationPreviousProps = ComponentProps<typeof PaginationLink>;
+
+	let { class: className, ...restProps }: PaginationPreviousProps = $props();
+</script>
+
+<PaginationLink
+	aria-label="Go to previous page"
+	size="default"
+	class={cn("pl-1.5!", className)}
+	{...restProps}
+>
+	<ChevronLeftIcon data-icon="inline-start" />
+	<span class="cn-pagination-previous-text hidden sm:block">Previous</span>
+</PaginationLink>

@@ -9,6 +9,8 @@ class RuntimeController extends Controller
 {
     public function show()
     {
-        return response()->json(RuntimeService::getInfo());
+        $runtimeData = RuntimeService::getInfo();
+        
+        return response()->json($runtimeData);
     }
 }

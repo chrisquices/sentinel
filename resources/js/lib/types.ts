@@ -1,4 +1,6 @@
 // System
+export type SystemInitialData = SystemData;
+
 export interface SystemData {
     cpu: Cpu;
     memory: Memory;
@@ -58,7 +60,7 @@ export interface OpcacheInfo {
 }
 
 // Scheduler
-export interface SchedulerData {
+export interface SchedulerInitialData {
     events: SchedulerTask[];
 }
 
@@ -72,34 +74,12 @@ export interface SchedulerTask {
     status: 'never' | 'success' | 'failed';
 }
 
-// Logs
-export interface LogChannel {
-    name: string;
-    driver: string;
-    path: string;
-}
-
-export interface LogEntry {
-    timestamp: string | null;
-    environment: string | null;
-    level: string;
-    message: string;
-    extra: string | null;
-}
-
-export interface LogEntriesResult {
-    entries: LogEntry[];
-    cursor: number | null;
-    hasMore: boolean;
-    tailCursor: number;
-}
-
-export interface LogTailResult {
-    entries: LogEntry[];
-    tailCursor: number;
-}
-
 // Queue
+export interface QueueInitialData {
+    summary: QueueSummary;
+    jobs: Job[];
+}
+
 export interface QueueData {
     summary: QueueSummary;
     jobs: Job[];
@@ -127,3 +107,35 @@ export interface Job {
     exceptionFull?: string;
 }
 
+// Logs
+export interface LogInitialData {
+    channels: LogChannel[];
+    entries: LogEntry[];
+    total: number;
+    tailCursor: number;
+}
+
+export interface LogChannel {
+    name: string;
+    driver: string;
+    path: string;
+}
+
+export interface LogEntry {
+    timestamp: string | null;
+    timestampFormatted: string | null;
+    level: string;
+    message: string;
+    extra: string | null;
+}
+
+export interface LogEntriesResult {
+    entries: LogEntry[];
+    total: number;
+    tailCursor: number;
+}
+
+export interface LogTailResult {
+    entries: LogEntry[];
+    tailCursor: number;
+}
