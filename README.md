@@ -31,17 +31,27 @@
 
 ## Installation
 
-1. **Require the package**
+1. **Add the VCS repository to `composer.json`**
+   ```json
+   "repositories": [
+       {
+           "type": "vcs",
+           "url": "https://github.com/chrisquices/sentinel"
+       }
+   ]
+   ```
+
+2. **Require the package**
    ```bash
    composer require chrisquices/sentinel
    ```
 
-2. **Publish config, views, and assets**
+3. **Publish config, views, and assets**
    ```bash
    php artisan vendor:publish --tag=sentinel --force
    ```
 
-3. **Run the migrations**
+4. **Run the migrations**
    ```bash
    php artisan migrate
    ```
