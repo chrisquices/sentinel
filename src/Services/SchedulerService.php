@@ -74,7 +74,7 @@ class SchedulerService
 
         $cmd = $event->command ?? '';
 
-        if (preg_match('/artisan\s+(.+)/', $cmd, $m)) {
+        if (preg_match('/artisan[\'"\s]+(.+)/', $cmd, $m)) {
             return 'artisan ' . trim($m[1]);
         }
 
