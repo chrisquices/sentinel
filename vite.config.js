@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 
 export default defineConfig({
     plugins: [svelte(), tailwindcss()],
+    base: '/vendor/sentinel/',
     publicDir: false,
     resolve: {
         alias: {
