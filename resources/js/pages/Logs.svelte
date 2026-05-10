@@ -199,7 +199,7 @@
         </Card.Header>
 
         <Card.Content class="p-0 overflow-hidden">
-            <div class="h-[600px] overflow-y-auto">
+            <div class="h-[700px] overflow-y-auto">
             <Table.Root>
                 <Table.Header>
                     <Table.Row>
