@@ -68,7 +68,8 @@
     <h2 class="font-semibold text-foreground mb-4 flex items-center gap-2"><CalendarClock class="size-4"/>Scheduler</h2>
 
     <Card.Root>
-        <Card.Content class="p-0">
+        <Card.Content class="p-0 overflow-hidden">
+            <div class="overflow-y-auto max-h-72">
             <Table.Root>
                 <Table.Header>
                     <Table.Row>
@@ -129,6 +130,7 @@
                     {/if}
                 </Table.Body>
             </Table.Root>
+            </div>
         </Card.Content>
     </Card.Root>
 </section>

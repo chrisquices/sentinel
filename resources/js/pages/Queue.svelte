@@ -132,7 +132,8 @@
             </ButtonGroup.Root>
         </Card.Header>
 
-        <Card.Content class="p-0">
+        <Card.Content class="p-0 overflow-hidden">
+            <div class="overflow-y-auto max-h-80">
 
             <!-- Jobs -->
             <Table.Root>
@@ -257,6 +258,7 @@
                     {/if}
                 </Table.Body>
             </Table.Root>
+            </div>
         </Card.Content>
     </Card.Root>
 </section>

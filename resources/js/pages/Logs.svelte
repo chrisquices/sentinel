@@ -156,14 +156,14 @@
     // endregion
 </script>
 
-<section>
+<section class="h-[700px] 2xl:h-full flex flex-col">
 
-    <h2 class="font-semibold text-foreground mb-4 flex items-center gap-2">
+    <h2 class="font-semibold text-foreground mb-4 flex items-center gap-2 shrink-0">
         <ScrollText class="size-4"/>
         Logs
     </h2>
 
-    <Card.Root>
+    <Card.Root class="flex-1 flex flex-col min-h-0 overflow-hidden">
         <Card.Header>
 
             <!-- Level Filter -->
@@ -221,8 +221,8 @@
             </div>
         </Card.Header>
 
-        <Card.Content class="p-0 overflow-hidden">
-            <div class="h-256 overflow-y-auto">
+        <Card.Content class="flex-1 overflow-hidden p-0">
+            <div class="h-full overflow-y-auto">
                 <Table.Root>
                     <Table.Header>
                         <Table.Row>
