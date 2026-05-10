@@ -63,13 +63,13 @@
     // endregion
 </script>
 
-<section>
+<section class="3xl:h-full 3xl:flex 3xl:flex-col">
 
-    <h2 class="font-semibold text-foreground mb-4 flex items-center gap-2"><CalendarClock class="size-4"/>Scheduler</h2>
+    <h2 class="font-semibold text-foreground mb-4 flex items-center gap-2 3xl:shrink-0"><CalendarClock class="size-4"/>Scheduler</h2>
 
-    <Card.Root>
-        <Card.Content class="p-0 overflow-hidden">
-            <div class="overflow-y-auto max-h-72">
+    <Card.Root class="3xl:flex-1 3xl:flex 3xl:flex-col 3xl:min-h-0 3xl:overflow-hidden">
+        <Card.Content class="p-0 overflow-hidden 3xl:flex-1">
+            <div class="overflow-y-auto max-h-72 3xl:max-h-none 3xl:h-full">
             <Table.Root>
                 <Table.Header>
                     <Table.Row>

@@ -62,13 +62,19 @@
         <div class="flex-1 flex flex-col 3xl:flex-row 3xl:overflow-hidden">
 
             <!-- Left panel / main content -->
-            <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6 3xl:max-w-none 3xl:mx-0 3xl:flex-1 3xl:overflow-y-auto 3xl:p-6">
-                <div class="grid grid-cols-1 lg:grid-cols-6 gap-6 items-stretch">
+            <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6
+                        3xl:max-w-none 3xl:mx-0 3xl:flex-1 3xl:overflow-y-auto 3xl:p-6
+                        3xl:flex 3xl:flex-col 3xl:space-y-0 3xl:gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-6 gap-6 items-stretch 3xl:shrink-0">
                     <System initialData={systemData} class="lg:col-span-2 h-full"/>
                     <Runtime initialData={runtimeData} class="lg:col-span-4 h-full"/>
                 </div>
-                <Scheduler initialData={schedulerData}/>
-                <Queue initialData={queueData}/>
+                <div class="3xl:flex-1 3xl:flex 3xl:flex-col 3xl:min-h-0">
+                    <Scheduler initialData={schedulerData}/>
+                </div>
+                <div class="3xl:flex-1 3xl:flex 3xl:flex-col 3xl:min-h-0">
+                    <Queue initialData={queueData}/>
+                </div>
             </div>
 
             <!-- Right panel: Logs -->
