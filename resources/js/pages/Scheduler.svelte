@@ -50,10 +50,11 @@
             now = Date.now();
         }, 1000);
 
+        const ms = (initialData?.pollInterval ?? 10) * 1000;
         const pollInterval = setInterval(async () => {
             const res = await fetchScheduler() as SchedulerData;
             tasks = res.events ?? [];
-        }, 10000);
+        }, ms);
 
         return () => {
             clearInterval(clockInterval);

@@ -42,9 +42,10 @@
     );
 
     onMount(() => {
+        const ms = (initialData?.pollInterval ?? 3) * 1000;
         const interval = setInterval(async () => {
             queueData = await fetchQueue() as QueueData;
-        }, 3000);
+        }, ms);
 
         return () => clearInterval(interval);
     });
@@ -107,6 +108,14 @@
         Queue
     </h2>
 
+    {#if initialData?.unsupportedDriver}
+        <Card.Root>
+            <Card.Content class="py-8 text-center text-muted-foreground">
+                Queue monitoring requires the <span class="font-mono text-foreground">database</span> driver.
+                Current driver: <span class="font-mono text-foreground">{initialData.driver}</span>.
+            </Card.Content>
+        </Card.Root>
+    {:else}
     <Card.Root class="3xl:flex-1 3xl:flex 3xl:flex-col 3xl:min-h-0 3xl:overflow-hidden">
         <Card.Header>
             <!-- Filter Button Group -->
@@ -282,6 +291,7 @@
             </div>
         </Card.Content>
     </Card.Root>
+    {/if}
 </section>
 
 <Dialog.Root open={selectedJob !== null}

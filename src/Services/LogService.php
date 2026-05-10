@@ -13,18 +13,21 @@ class LogService
         $channels = self::getChannels();
         $first = $channels[0]['name'] ?? null;
 
+        $pollInterval = (int) config('sentinel.poll_interval', 3);
+
         if (!$first) {
-            return ['channels' => [], 'entries' => [], 'total' => 0, 'tailCursor' => 0];
+            return ['channels' => [], 'entries' => [], 'total' => 0, 'tailCursor' => 0, 'pollInterval' => $pollInterval];
         }
 
         $logs = self::getLogs($first, 1, null);
 
         return [
-            'channels'  => $channels,
-            'entries'   => $logs['entries'],
-            'total'     => $logs['total'],
-            'tailCursor' => $logs['tailCursor'],
-            'perPage'   => $logs['perPage'],
+            'channels'     => $channels,
+            'entries'      => $logs['entries'],
+            'total'        => $logs['total'],
+            'tailCursor'   => $logs['tailCursor'],
+            'perPage'      => $logs['perPage'],
+            'pollInterval' => $pollInterval,
         ];
     }
 

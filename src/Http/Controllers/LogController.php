@@ -5,6 +5,7 @@ namespace Chrisquices\Sentinel\Http\Controllers;
 use Chrisquices\Sentinel\Services\LogService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Validator;
 
 class LogController extends Controller
 {
@@ -24,6 +25,16 @@ class LogController extends Controller
             return response()->json(['error' => 'Invalid channel name.'], 400);
         }
 
+        $v = Validator::make($request->query(), [
+            'page'   => 'nullable|integer|min:1',
+            'level'  => 'nullable|string|in:error,warning,info,debug',
+            'search' => 'nullable|string|max:255',
+        ]);
+
+        if ($v->fails()) {
+            return response()->json(['errors' => $v->errors()], 422);
+        }
+
         $page   = (int) $request->query('page', 1);
         $level  = $request->query('level') ?: null;
         $search = $request->query('search') ?: null;
@@ -35,6 +46,15 @@ class LogController extends Controller
     {
         if (! $this->validChannel($channel)) {
             return response()->json(['error' => 'Invalid channel name.'], 400);
+        }
+
+        $v = Validator::make($request->query(), [
+            'tailCursor' => 'nullable|integer|min:0',
+            'level'      => 'nullable|string|in:error,warning,info,debug',
+        ]);
+
+        if ($v->fails()) {
+            return response()->json(['errors' => $v->errors()], 422);
         }
 
         $tailCursor = (int) $request->query('tailCursor', 0);

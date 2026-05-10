@@ -117,30 +117,30 @@ class SystemService
 
     public static function getCpuHistory(): array
     {
-        return Cache::get('cpu_samples', []);
+        return Cache::get('sentinel:cpu_history', []);
     }
 
     private static function storeCpuSample(float $usage): void
     {
-        $samples = Cache::get('cpu_samples', []);
+        $samples = Cache::get('sentinel:cpu_history', []);
 
         $samples[] = [
-            'time' => time(),
-            'timeFormatted' => SystemHelper::formatTime(time()),
-            'usage' => $usage,
+            'time'           => time(),
+            'timeFormatted'  => SystemHelper::formatTime(time()),
+            'usage'          => $usage,
             'usageFormatted' => SystemHelper::formatPercentage($usage),
         ];
 
-        if (count($samples) > 3600) {
-            $samples = array_slice($samples, -3600);
+        if (count($samples) > 60) {
+            $samples = array_slice($samples, -60);
         }
 
-        Cache::put('cpu_samples', $samples, now()->addHour());
+        Cache::put('sentinel:cpu_history', $samples, now()->addMinutes(10));
     }
 
     public static function forgetCpuHistory(): void
     {
-        Cache::forget('cpu_samples');
+        Cache::forget('sentinel:cpu_history');
     }
 
     // endregion

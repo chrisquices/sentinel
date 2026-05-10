@@ -62,6 +62,12 @@ export interface OpcacheInfo {
 // Scheduler
 export interface SchedulerInitialData {
     events: SchedulerTask[];
+    pollInterval: number;
+}
+
+export interface SchedulerData {
+    events: SchedulerTask[];
+    pollInterval: number;
 }
 
 export interface SchedulerTask {
@@ -78,11 +84,17 @@ export interface SchedulerTask {
 export interface QueueInitialData {
     summary: QueueSummary;
     jobs: Job[];
+    pollInterval: number;
+    unsupportedDriver?: boolean;
+    driver?: string;
 }
 
 export interface QueueData {
     summary: QueueSummary;
     jobs: Job[];
+    pollInterval: number;
+    unsupportedDriver?: boolean;
+    driver?: string;
 }
 
 export interface QueueSummary {
@@ -128,6 +140,7 @@ export interface LogInitialData {
     total: number;
     tailCursor: number;
     perPage: number;
+    pollInterval: number;
 }
 
 export interface LogChannel {

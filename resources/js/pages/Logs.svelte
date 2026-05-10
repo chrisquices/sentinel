@@ -135,6 +135,26 @@
         void loadEntries(activeChannel, page, activeLevel, search);
     }
 
+    // region --- Log Tailing ------------------------------------------------------------------------------------------
+    onMount(() => {
+        const ms = (initialData?.pollInterval ?? 3) * 1000;
+
+        const tailInterval = setInterval(async () => {
+            const ch = activeChannel;
+            if (!ch || page !== 1 || search !== '') return;
+
+            const result = await fetchLogTail(ch, tailCursor, activeLevel) as LogTailResult;
+            if (!result.entries.length) return;
+
+            entries = [...result.entries.reverse(), ...entries];
+            tailCursor = result.tailCursor;
+            total += result.entries.length;
+        }, ms);
+
+        return () => clearInterval(tailInterval);
+    });
+    // endregion
+
     let deleteDialogOpen = $state(false);
     let isDeleting = $state(false);
 

@@ -10,14 +10,24 @@ use Illuminate\Support\Facades\Artisan;
 
 class QueueService
 {
+    private const SUPPORTED_DRIVERS = ['database', 'redis'];
+
     public static function get(): array
     {
-        $summary = self::getSummary();
-        $jobs = self::getJobs();
+        $driver = config('queue.default');
+
+        if (! in_array($driver, self::SUPPORTED_DRIVERS)) {
+            return [
+                'unsupportedDriver' => true,
+                'driver'            => $driver,
+                'pollInterval'      => (int) config('sentinel.poll_interval', 3),
+            ];
+        }
 
         return [
-            'summary' => $summary,
-            'jobs' => $jobs,
+            'summary'      => self::getSummary(),
+            'jobs'         => self::getJobs(),
+            'pollInterval' => (int) config('sentinel.poll_interval', 3),
         ];
     }
 

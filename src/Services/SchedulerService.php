@@ -13,11 +13,9 @@ class SchedulerService
 {
     public static function get(): array
     {
-        $events = self::getEvents();
-
-
         return [
-            'events' => $events
+            'events'       => self::getEvents(),
+            'pollInterval' => (int) config('sentinel.scheduler_poll_interval', 10),
         ];
     }
 

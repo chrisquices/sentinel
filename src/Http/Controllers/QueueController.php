@@ -3,19 +3,34 @@
 namespace Chrisquices\Sentinel\Http\Controllers;
 
 use Chrisquices\Sentinel\Services\QueueService;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Validator;
 
 class QueueController extends Controller
 {
-    public function show()
+    public function show(Request $request)
     {
+        $v = Validator::make($request->query(), [
+            'page'   => 'nullable|integer|min:1',
+            'status' => 'nullable|string|in:pending,processing,completed,failed',
+        ]);
+
+        if ($v->fails()) {
+            return response()->json(['errors' => $v->errors()], 422);
+        }
+
         return response()->json(QueueService::get());
     }
 
     public function showJob(string $id)
     {
-        if (! preg_match('/^[a-zA-Z0-9-]+$/', $id) || strlen($id) > 255) {
-            return response()->json(['error' => 'Invalid job ID.'], 400);
+        $v = Validator::make(['id' => $id], [
+            'id' => 'required|string|regex:/^[a-zA-Z0-9-]+$/|max:255',
+        ]);
+
+        if ($v->fails()) {
+            return response()->json(['errors' => $v->errors()], 422);
         }
 
         $payload = QueueService::getJobPayload($id);
@@ -30,37 +45,51 @@ class QueueController extends Controller
     // Completed Jobs
     public function deleteCompletedJob(string $id)
     {
-        $success = QueueService::deleteCompletedJob($id);
+        $v = Validator::make(['id' => $id], [
+            'id' => 'required|string|regex:/^[a-zA-Z0-9-]+$/|max:255',
+        ]);
 
-        return response()->json(['success' => $success]);
+        if ($v->fails()) {
+            return response()->json(['errors' => $v->errors()], 422);
+        }
+
+        return response()->json(['success' => QueueService::deleteCompletedJob($id)]);
     }
 
     public function clearCompletedJobs()
     {
-        $success = QueueService::clearCompletedJobs();
-
-        return response()->json(['success' => $success]);
+        return response()->json(['success' => QueueService::clearCompletedJobs()]);
     }
 
     // Failed Jobs
     public function retryFailedJob(string $id)
     {
-        $success = QueueService::retryFailedJob($id);
+        $v = Validator::make(['id' => $id], [
+            'id' => 'required|string|regex:/^[a-zA-Z0-9-]+$/|max:255',
+        ]);
 
-        return response()->json(['success' => $success]);
+        if ($v->fails()) {
+            return response()->json(['errors' => $v->errors()], 422);
+        }
+
+        return response()->json(['success' => QueueService::retryFailedJob($id)]);
     }
 
     public function deleteFailedJob(string $id)
     {
-        $success = QueueService::deleteFailedJob($id);
+        $v = Validator::make(['id' => $id], [
+            'id' => 'required|string|regex:/^[a-zA-Z0-9-]+$/|max:255',
+        ]);
 
-        return response()->json(['success' => $success]);
+        if ($v->fails()) {
+            return response()->json(['errors' => $v->errors()], 422);
+        }
+
+        return response()->json(['success' => QueueService::deleteFailedJob($id)]);
     }
 
     public function clearFailedJobs()
     {
-        $success = QueueService::clearFailedJobs();
-
-        return response()->json(['success' => $success]);
+        return response()->json(['success' => QueueService::clearFailedJobs()]);
     }
 }
