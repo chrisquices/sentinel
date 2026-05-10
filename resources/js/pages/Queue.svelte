@@ -241,7 +241,7 @@
                                         {#if activeFilter === 'completed'}
 
                                             <!-- Run Time -->
-                                            <Table.Cell>{job.runTimeFormatted ?? '—'}</Table.Cell>
+                                            <Table.Cell>{job.runTimeFormatted ?? '-'}</Table.Cell>
 
                                             <!-- Timestamp -->
                                             <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
@@ -324,7 +324,7 @@
                         <dd>{jobPayload.queue}</dd>
 
                         <dt class="text-muted-foreground">Connection</dt>
-                        <dd>{jobPayload.connection ?? '—'}</dd>
+                        <dd>{jobPayload.connection ?? '-'}</dd>
 
                         <dt class="text-muted-foreground">Attempts</dt>
                         <dd>{jobPayload.attempts}</dd>

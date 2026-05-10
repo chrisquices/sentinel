@@ -53,7 +53,7 @@ class SchedulerHelper
 
     public static function relativeTime(Carbon|string|null $datetime): string
     {
-        if (!$datetime) return '—';
+        if (!$datetime) return '-';
 
         $carbon = $datetime instanceof Carbon ? $datetime : Carbon::parse($datetime);
         $diff = (int) now()->diffInSeconds($carbon, false);

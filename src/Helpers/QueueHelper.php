@@ -20,7 +20,7 @@ class QueueHelper
 
     public static function formatDateTime(?string $datetime): string
     {
-        if (!$datetime) return '—';
+        if (!$datetime) return '-';
 
         $dt = Carbon::parse($datetime);
         $seconds = (int) abs($dt->diffInSeconds(now()));

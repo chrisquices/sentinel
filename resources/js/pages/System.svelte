@@ -128,10 +128,10 @@
             <div class="flex items-center justify-between w-full">
                 <div class="flex items-center gap-2">
                     <span class="font-medium text-card-foreground">
-                        CPU ({systemData?.cpu.cores ?? '—'} {systemData?.cpu.cores === 1 ? 'core' : 'cores'})
+                        CPU ({systemData?.cpu.cores ?? '-'} {systemData?.cpu.cores === 1 ? 'core' : 'cores'})
                     </span>
                 </div>
-                <span class="font-bold text-card-foreground">{systemData?.cpu.usageFormatted ?? '—'}</span>
+                <span class="font-bold text-card-foreground">{systemData?.cpu.usageFormatted ?? '-'}</span>
             </div>
         </Card.Header>
 
@@ -152,8 +152,8 @@
                 <div class="space-y-1">
                     <div class="flex justify-between text-muted-foreground">
                         <span>RAM</span>
-                        <span>{systemData?.memory.usedFormatted ?? '—'}
-                            / {systemData?.memory.totalFormatted ?? '—'}</span>
+                        <span>{systemData?.memory.usedFormatted ?? '-'}
+                            / {systemData?.memory.totalFormatted ?? '-'}</span>
                     </div>
                     <div class="w-full bg-muted rounded-full h-1.5">
                         <div class="bg-primary h-1.5 rounded-full"
@@ -165,8 +165,8 @@
                 <div class="space-y-1">
                     <div class="flex justify-between text-muted-foreground">
                         <span>Storage</span>
-                        <span>{systemData?.storage.usedFormatted ?? '—'}
-                            / {systemData?.storage.totalFormatted ?? '—'}</span>
+                        <span>{systemData?.storage.usedFormatted ?? '-'}
+                            / {systemData?.storage.totalFormatted ?? '-'}</span>
                     </div>
                     <div class="w-full bg-muted rounded-full h-1.5">
                         <div class="bg-muted-foreground h-1.5 rounded-full"

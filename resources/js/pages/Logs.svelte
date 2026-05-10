@@ -293,7 +293,7 @@
 
                                     <!-- Timestamp -->
                                     <Table.Cell class="whitespace-nowrap">
-                                        {entry.timestampFormatted ?? '—'}
+                                        {entry.timestampFormatted ?? '-'}
                                     </Table.Cell>
 
                                     <!-- Description -->

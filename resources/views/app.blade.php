@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('sentinel.project_name', 'My Project') }} — Sentinel</title>
+    <title>{{ config('sentinel.project_name', 'My Project') }} | Sentinel</title>
     <link rel="stylesheet" href="{{ asset('vendor/sentinel/assets/app.css') }}?v={{ filemtime(public_path('vendor/sentinel/assets/app.css')) }}">
 </head>
 <body>

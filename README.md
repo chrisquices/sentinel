@@ -117,7 +117,7 @@ Gate::define('viewSentinel', function ($user) {
 ## Features
 
 ### System
-Live CPU usage with a rolling 60-sample history graph, memory usage and availability, and disk storage — all read directly from the host OS.
+Live CPU usage with a rolling 60-sample history graph, memory usage and availability, and disk storage all read directly from the host OS.
 
 ### Runtime
 PHP version, SAPI, memory limit, max execution time, upload limits, and OPcache status (enabled state, hit ratio, memory used/free, cached script count).
@@ -134,11 +134,11 @@ Run history is stored in the `sentinel_scheduler_runs` table and persists across
 
 Supports the **database** and **redis** queue drivers. If the app uses any other driver, the panel displays a clear unsupported message rather than empty tables.
 
-Tabs: Pending, Processing, Completed, Failed — each with a live job count that polls every `poll_interval` seconds. Clicking any row opens a detail dialog showing queue, connection, attempts, run time, completed/failed timestamps, full exception trace, and raw payload.
+Tabs: Pending, Processing, Completed, Failed each with a live job count that polls every `poll_interval` seconds. Clicking any row opens a detail dialog showing queue, connection, attempts, run time, completed/failed timestamps, full exception trace, and raw payload.
 
 Actions:
-- **Failed** — retry a single job or bulk-delete all failed jobs
-- **Completed** — delete a single job or bulk-delete all completed jobs
+- **Failed** retry a single job or bulk-delete all failed jobs
+- **Completed** delete a single job or bulk-delete all completed jobs
 
 Completed job tracking uses Sentinel's own `sentinel_completed_jobs` table.
 
@@ -146,12 +146,12 @@ Completed job tracking uses Sentinel's own `sentinel_completed_jobs` table.
 
 Reads all configured Laravel log channels that have an existing file (single and daily drivers, including stack channels). Features:
 
-- **Level filter** — All, Error, Warning, Info, Debug
-- **Full-text search** — searches across all entries for the active channel
-- **Pagination** — controlled by the `pagination` config value
-- **Live tail** — new entries are prepended automatically every `poll_interval` seconds when on page 1 with no active search
-- **Detail dialog** — click any row to see the full message and stack trace
-- **Delete** — wipe the active channel's log file, with a confirmation dialog
+- **Level filter** All, Error, Warning, Info, Debug
+- **Full-text search** searches across all entries for the active channel
+- **Pagination** controlled by the `pagination` config value
+- **Live tail** new entries are prepended automatically every `poll_interval` seconds when on page 1 with no active search
+- **Detail dialog** click any row to see the full message and stack trace
+- **Delete** wipe the active channel's log file, with a confirmation dialog
 
 Active channel and level filter are persisted in `localStorage` across sessions.
 
@@ -176,4 +176,4 @@ composer update chrisquices/sentinel
 php artisan vendor:publish --tag=sentinel --force
 ```
 
-Published assets include a `filemtime`-based cache-busting query string automatically — no manual versioning required.
+Published assets include a `filemtime`-based cache-busting query string automatically no manual versioning required.

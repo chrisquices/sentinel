@@ -99,7 +99,7 @@ class QueueService
                     'status' => 'pending',
                     'attempts' => $payload['attempts'] ?? 0,
                     'createdAt' => null,
-                    'createdAtFormatted' => '—',
+                    'createdAtFormatted' => '-',
                 ];
             }
 
@@ -114,7 +114,7 @@ class QueueService
                     'status' => 'processing',
                     'attempts' => $payload['attempts'] ?? 0,
                     'createdAt' => null,
-                    'createdAtFormatted' => '—',
+                    'createdAtFormatted' => '-',
                 ];
             }
         } else {
@@ -147,7 +147,7 @@ class QueueService
                 'createdAt' => $job->completed_at,
                 'createdAtFormatted' => QueueHelper::formatDateTime($job->completed_at),
                 'runTime' => $job->run_time,
-                'runTimeFormatted' => $job->run_time ? $job->run_time . 'ms' : '—',
+                'runTimeFormatted' => $job->run_time ? $job->run_time . 'ms' : '-',
             ];
         }
 

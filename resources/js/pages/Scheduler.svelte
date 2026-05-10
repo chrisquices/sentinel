@@ -32,7 +32,7 @@
     }
 
     function formatRelative(isoString: string | null): string {
-        if (!isoString) return '—';
+        if (!isoString) return '-';
         const diff = Math.floor((now - new Date(isoString).getTime()) / 1000);
         if (diff < 60) return 'just now';
         if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
