@@ -198,7 +198,8 @@
             </div>
         </Card.Header>
 
-        <Card.Content class="p-0">
+        <Card.Content class="p-0 overflow-hidden">
+            <div class="h-[600px] overflow-y-auto">
             <Table.Root>
                 <Table.Header>
                     <Table.Row>
@@ -252,6 +253,7 @@
                         {/if}
                 </Table.Body>
             </Table.Root>
+            </div>
         </Card.Content>
 
         {#if total > perPage}
