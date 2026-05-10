@@ -67,18 +67,18 @@ class SentinelServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__ . '/../config/sentinel.php' => config_path('sentinel.php'),
-        ], 'sentinel-config');
+        ], ['sentinel-config', 'sentinel']);
 
         $this->publishes([
             __DIR__ . '/../resources/views' => resource_path('views/vendor/sentinel'),
-        ], 'sentinel-views');
+        ], ['sentinel-views', 'sentinel']);
 
         $this->publishes([
             __DIR__ . '/../database/migrations' => database_path('migrations'),
-        ], 'sentinel-migrations');
+        ], ['sentinel-migrations', 'sentinel']);
 
         $this->publishes([
             __DIR__ . '/../dist' => public_path('vendor/sentinel'),
-        ], 'sentinel-assets');
+        ], ['sentinel-assets', 'sentinel']);
     }
 }

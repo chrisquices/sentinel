@@ -36,17 +36,12 @@
    composer require chrisquices/sentinel
    ```
 
-2. **Publish the config** *(once, on initial setup)*
+2. **Publish config, views, and assets**
    ```bash
-   php artisan vendor:publish --tag=sentinel-config
+   php artisan vendor:publish --tag=sentinel --force
    ```
 
-3. **Publish the assets** *(after every package update)*
-   ```bash
-   php artisan vendor:publish --tag=sentinel-assets
-   ```
-
-4. **Run the migrations**
+3. **Run the migrations**
    ```bash
    php artisan migrate
    ```
@@ -121,5 +116,5 @@ npm run build
 
 # In the consuming app
 composer update chrisquices/sentinel
-php artisan vendor:publish --tag=sentinel-assets --force
+php artisan vendor:publish --tag=sentinel --force
 ```
