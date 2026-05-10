@@ -36,13 +36,17 @@
    composer require chrisquices/sentinel
    ```
 
-2. **Publish the config and assets**
+2. **Publish the config** *(once, on initial setup)*
    ```bash
    php artisan vendor:publish --tag=sentinel-config
+   ```
+
+3. **Publish the assets** *(after every package update)*
+   ```bash
    php artisan vendor:publish --tag=sentinel-assets
    ```
 
-3. **Run the migrations**
+4. **Run the migrations**
    ```bash
    php artisan migrate
    ```
@@ -109,31 +113,13 @@ Replace `sentinel` with the value of `path` in your config if you changed it.
 
 ## Local Development
 
-To work on Sentinel alongside a Laravel app with changes reflected immediately, configure the app's `composer.json` to use a path repository pointing to your local clone, with the GitHub VCS repository as a fallback for environments where the local path doesn't exist (e.g. production):
-
-```json
-"repositories": [
-    {
-        "type": "path",
-        "url": "../sentinel",
-        "options": {
-            "symlink": true
-        },
-        "canonical": false
-    },
-    {
-        "type": "vcs",
-        "url": "https://github.com/chrisquices/sentinel"
-    }
-],
-"minimum-stability": "dev",
-"prefer-stable": true
-```
-
-Then require the package at `dev-main`:
+After making changes to Sentinel, build the frontend assets, then update and republish them in the consuming app:
 
 ```bash
-composer require chrisquices/sentinel:dev-main
-```
+# In the sentinel package
+npm run build
 
-The path repository symlinks the local directory so any changes are reflected immediately without republishing assets. When the local path is absent, Composer falls back to the VCS repository and pulls from GitHub instead.
+# In the consuming app
+composer update chrisquices/sentinel
+php artisan vendor:publish --tag=sentinel-assets --force
+```
