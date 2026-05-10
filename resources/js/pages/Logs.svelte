@@ -111,7 +111,6 @@
                 initialDataConsumed = true;
                 return;
             }
-            entries = [];
             void loadEntries(ch, pg, lvl, q);
         });
     });
