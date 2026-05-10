@@ -20,11 +20,7 @@
     // endregion
 
     // region --- System -----------------------------------------------------------------------------------------------
-    let systemData = $state<SystemData | null>(null);
-
-    $effect(() => {
-        if (initialData && !systemData) systemData = initialData;
-    });
+    let systemData = $state<SystemData | null>(initialData);
 
     let canvas: HTMLCanvasElement;
     let chart: Chart;

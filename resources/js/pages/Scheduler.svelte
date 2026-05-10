@@ -14,11 +14,7 @@
     let {initialData = null}: Props = $props();
 
     // region --- Scheduler --------------------------------------------------------------------------------------------
-    let tasks = $state<SchedulerTask[]>([]);
-
-    $effect(() => {
-        if (initialData && tasks.length === 0) tasks = initialData.events ?? [];
-    });
+    let tasks = $state<SchedulerTask[]>(initialData?.events ?? []);
 
     let now = $state(Date.now());
 

@@ -28,7 +28,7 @@
     const filters = ['pending', 'processing', 'completed', 'failed'] as const;
     type Filter = typeof filters[number];
 
-    let queueData = $state<QueueData | null>(null);
+    let queueData = $state<QueueData | null>(initialData);
     let activeFilter = $state<Filter>(
         (typeof localStorage !== 'undefined' ? localStorage.getItem('queue:filter') as Filter : null) ?? 'pending'
     );
@@ -40,10 +40,6 @@
     let filteredJobs = $derived(
         queueData?.jobs.filter(j => j.status === activeFilter) ?? []
     );
-
-    $effect(() => {
-        if (initialData && !queueData) queueData = initialData;
-    });
 
     onMount(() => {
         const interval = setInterval(async () => {
