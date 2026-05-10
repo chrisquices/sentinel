@@ -72,7 +72,7 @@
 
     <Card.Root class="3xl:flex-1 3xl:flex 3xl:flex-col 3xl:min-h-0 3xl:overflow-hidden">
         <Card.Content class="p-0 overflow-hidden 3xl:flex-1">
-            <div class="overflow-y-auto max-h-72 3xl:max-h-none 3xl:h-full">
+            <div class="overflow-y-auto max-h-80 3xl:max-h-none 3xl:h-full [&_[data-slot='table-container']]:h-full">
                 <Table.Root>
                     <Table.Header>
                         <Table.Row>

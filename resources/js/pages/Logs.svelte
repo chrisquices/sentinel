@@ -222,7 +222,7 @@
         </Card.Header>
 
         <Card.Content class="p-0 3xl:flex-1 3xl:overflow-hidden">
-            <div class="3xl:h-full 3xl:overflow-y-auto">
+            <div class="3xl:h-full 3xl:overflow-y-auto [&_[data-slot='table-container']]:h-full">
                 <Table.Root>
                     <Table.Header>
                         <Table.Row>
