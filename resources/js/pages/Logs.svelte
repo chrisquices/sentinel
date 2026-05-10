@@ -135,16 +135,25 @@
         void loadEntries(activeChannel, page, activeLevel, search);
     }
 
-    async function wipeLog() {
+    let deleteDialogOpen = $state(false);
+    let isDeleting = $state(false);
+
+    async function confirmDelete() {
+        isDeleting = true;
         try {
             await clearLog(activeChannel);
             entries = [];
             total = 0;
             tailCursor = 0;
             page = 1;
-            toast.success('Log cleared', { description: `${activeChannel} log has been wiped.` });
+            toast.success('Log deleted', { description: `${activeChannel} log has been deleted.` });
         } catch {
-            toast.error('Failed to clear log', { description: 'Something went wrong. Please try again.' });
+            toast.error('Failed to delete log', { description: 'Something went wrong. Please try again.' });
+        } finally {
+            setTimeout(() => {
+                deleteDialogOpen = false;
+                isDeleting = false;
+            }, 1000);
         }
     }
 
@@ -190,8 +199,8 @@
                     <RefreshCw class="size-4 {loading ? 'animate-spin' : ''}"/>
                 </Button>
 
-                <!-- Wipe Log -->
-                <Button variant="secondary" onclick={wipeLog} disabled={loading}>
+                <!-- Delete Log -->
+                <Button variant="secondary" onclick={() => deleteDialogOpen = true} disabled={loading}>
                     <Trash2 class="size-4"/>
                 </Button>
 
@@ -336,5 +345,17 @@
                 <pre class="text-center py-12">No message available.</pre>
             {/if}
         </Dialog.Body>
+    </Dialog.Content>
+</Dialog.Root>
+
+<Dialog.Root open={deleteDialogOpen} onOpenChange={(open) => { if (!open && !isDeleting) deleteDialogOpen = false; }}>
+    <Dialog.Content withLoading>
+        <Dialog.Header>
+            <Dialog.Title>Delete {activeChannel} log?</Dialog.Title>
+            <Dialog.Description>This action cannot be undone.</Dialog.Description>
+        </Dialog.Header>
+        <Dialog.Footer>
+            <Button variant="destructive" disabled={isDeleting} onclick={confirmDelete}>Delete</Button>
+        </Dialog.Footer>
     </Dialog.Content>
 </Dialog.Root>

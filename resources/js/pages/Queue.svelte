@@ -80,6 +80,24 @@
         failed: 'text-destructive',
     };
     // endregion
+
+    // region --- Delete Dialog ----------------------------------------------------------------------------------------
+    let deleteTarget = $state<'completed' | 'failed' | null>(null);
+    let isDeleting = $state(false);
+
+    async function confirmDelete() {
+        isDeleting = true;
+        try {
+            if (deleteTarget === 'completed') await clearCompletedJobs();
+            else if (deleteTarget === 'failed') await clearFailedJobs();
+        } finally {
+            setTimeout(() => {
+                deleteTarget = null;
+                isDeleting = false;
+            }, 1000);
+        }
+    }
+    // endregion
 </script>
 
 <section class="3xl:h-full 3xl:flex 3xl:flex-col">
@@ -116,19 +134,19 @@
             <!-- Filter Button Group -->
             <ButtonGroup.Root class="ml-auto">
 
-                <!-- Clear Completed Jobs -->
+                <!-- Delete Completed Jobs -->
                 {#if activeFilter === 'completed'}
-                    <Button onclick={() => clearCompletedJobs()} variant="secondary">
+                    <Button onclick={() => deleteTarget = 'completed'} variant="secondary">
                         <Trash2 class="size-4"/>
-                        Clear Completed Queue
+                        Delete Completed Queue
                     </Button>
                 {/if}
 
-                <!-- Clear Failed Jobs -->
+                <!-- Delete Failed Jobs -->
                 {#if activeFilter === 'failed'}
-                    <Button onclick={() => clearFailedJobs()} variant="secondary">
+                    <Button onclick={() => deleteTarget = 'failed'} variant="secondary">
                         <Trash2 class="size-4"/>
-                        Clear Failed Queue
+                        Delete Failed Queue
                     </Button>
                 {/if}
 
@@ -336,5 +354,17 @@
                 </div>
             {/if}
         </Dialog.Body>
+    </Dialog.Content>
+</Dialog.Root>
+
+<Dialog.Root open={deleteTarget !== null} onOpenChange={(open) => { if (!open && !isDeleting) deleteTarget = null; }}>
+    <Dialog.Content withLoading>
+        <Dialog.Header>
+            <Dialog.Title>Delete all {deleteTarget} jobs?</Dialog.Title>
+            <Dialog.Description>This action cannot be undone.</Dialog.Description>
+        </Dialog.Header>
+        <Dialog.Footer>
+            <Button variant="destructive" disabled={isDeleting} onclick={confirmDelete}>Delete</Button>
+        </Dialog.Footer>
     </Dialog.Content>
 </Dialog.Root>
