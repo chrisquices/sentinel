@@ -183,7 +183,7 @@
                 </Select.Root>
 
                 <InputGroup.Root class="bg-input/30 border-input/30 h-8! rounded-md! shadow-none! *:data-[slot=input-group-addon]:pl-2!">
-                    <InputGroup.Input placeholder="Search..." />
+                    <InputGroup.Input placeholder="Search in logs..." />
                     <InputGroup.Addon>
                         <Search class="size-4 shrink-0 opacity-50" />
                     </InputGroup.Addon>
