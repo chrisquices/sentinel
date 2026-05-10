@@ -22,6 +22,12 @@
 
 ---
 
+## Preview
+
+<img src="./resources/img/screenshot-1.webp" alt="Preview" width="100%" />
+
+---
+
 ## Requirements
 
 - **PHP** `^8.1`
