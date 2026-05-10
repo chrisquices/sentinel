@@ -42,12 +42,14 @@ class LogService
                 foreach ($config['channels'] ?? [] as $child) {
                     $childConfig = $channels[$child] ?? null;
                     if ($childConfig && in_array($childConfig['driver'] ?? null, ['single', 'daily'])) {
-                        $result[] = self::resolveChannel($name, $childConfig);
+                        $channel = self::resolveChannel($name, $childConfig);
+                        if ($channel) $result[] = $channel;
                         break;
                     }
                 }
             } elseif (in_array($driver, ['single', 'daily'])) {
-                $result[] = self::resolveChannel($name, $config);
+                $channel = self::resolveChannel($name, $config);
+                if ($channel) $result[] = $channel;
             }
         }
 
@@ -65,7 +67,7 @@ class LogService
         return null;
     }
 
-    private static function resolveChannel(string $name, array $config): array
+    private static function resolveChannel(string $name, array $config): ?array
     {
         $driver = $config['driver'];
         $path = $config['path'] ?? storage_path("logs/{$name}.log");
@@ -74,16 +76,16 @@ class LogService
             $info = pathinfo($path);
             $resolved = ($info['dirname'] ?? '') . DIRECTORY_SEPARATOR
                 . ($info['filename'] ?? 'laravel') . '-' . date('Y-m-d') . '.' . ($info['extension'] ?? 'log');
-            if (file_exists($resolved)) {
-                $path = $resolved;
-            }
+            $path = file_exists($resolved) ? $resolved : null;
         }
 
-        $format = LogHelper::detectLogFormat($path);
+        if (!$path || !file_exists($path)) {
+            return null;
+        }
 
         return [
             'name' => $name,
-            'driver' => $format,
+            'driver' => LogHelper::detectLogFormat($path),
             'path' => $path,
         ];
     }
