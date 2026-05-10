@@ -51,12 +51,12 @@ export async function fetchLogTail(channel: string, tailCursor: number, level: s
     return res.json();
 }
 
-export async function clearLog(channel: string): Promise<unknown> {
+export async function clearLog(channel: string): Promise<void> {
     const res = await fetch(`${base()}/logs/${encodeURIComponent(channel)}/clear`, {
         method: 'DELETE',
         headers: headers(),
     });
-    return res.json();
+    if (!res.ok) throw new Error(`${res.status}`);
 }
 
 // endregion
