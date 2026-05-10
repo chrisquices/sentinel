@@ -199,7 +199,7 @@
         </Card.Header>
 
         <Card.Content class="p-0 overflow-hidden">
-            <div class="h-[700px] overflow-y-auto">
+            <div class="h-[680px] overflow-y-auto">
             <Table.Root>
                 <Table.Header>
                     <Table.Row>
@@ -308,7 +308,7 @@
         </Dialog.Header>
         <Dialog.Body>
             {#if selectedEntry && selectedEntry.extra}
-                <pre class="overflow-x-auto whitespace-pre-wrap break-words">{selectedEntry.extra}</pre>
+                <pre class="overflow-y-auto overflow-x-auto h-128 whitespace-pre-wrap break-words">{selectedEntry.extra}</pre>
             {:else}
                 <pre class="text-center py-12">No message available.</pre>
             {/if}
