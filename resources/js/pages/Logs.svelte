@@ -4,12 +4,14 @@
     import * as Card from '$lib/components/ui/card';
     import * as Table from '$lib/components/ui/table';
     import * as Dialog from '$lib/components/ui/dialog';
+    import * as InputGroup from '$lib/components/ui/input-group';
     import * as Pagination from '$lib/components/ui/pagination';
     import {Badge} from '$lib/components/ui/badge';
+    import {Input} from '$lib/components/ui/input';
     import {Button} from '$lib/components/ui/button';
     import * as ButtonGroup from '$lib/components/ui/button-group';
     import {fetchLogEntries, fetchLogTail, clearLog} from '$lib/api';
-    import {Trash2, RefreshCw, ScrollText} from 'lucide-svelte';
+    import {Trash2, RefreshCw, ScrollText, Search} from 'lucide-svelte';
     import {type BadgeVariant} from '$lib/components/ui/badge';
     import {AlertTriangle, Bug, Info, AlertCircle, Flame} from 'lucide-svelte';
     import type {ComponentType} from 'svelte';
@@ -179,6 +181,14 @@
                         {/each}
                     </Select.Content>
                 </Select.Root>
+
+                <InputGroup.Root class="bg-input/30 border-input/30 h-8! rounded-md! shadow-none! *:data-[slot=input-group-addon]:pl-2!">
+                    <Input>
+                    </Input>
+                    <InputGroup.Addon>
+                        <Search class="size-4 shrink-0 opacity-50" />
+                    </InputGroup.Addon>
+                </InputGroup.Root>
             </div>
         </Card.Header>
 
