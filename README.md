@@ -77,7 +77,7 @@ return [
     'project_name' => env('APP_NAME', 'My Project'),
 
     // Number of items per page in paginated views
-    'pagination' => 15,
+    'pagination' => 20,
 ];
 ```
 

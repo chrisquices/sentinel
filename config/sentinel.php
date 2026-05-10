@@ -13,6 +13,6 @@ return [
 
     'project_name' => env('APP_NAME', 'My Project'),
 
-    'pagination' => 15,
+    'pagination' => 20,
 
 ];

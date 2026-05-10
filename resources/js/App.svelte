@@ -48,7 +48,7 @@
 {#if ready}
 <div class="min-h-screen transition-colors duration-200 bg-background">
     <Topbar {projectName}/>
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 mb-24">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 mb-36">
         <div class="grid grid-cols-1 lg:grid-cols-6 gap-6 items-stretch">
             <System initialData={systemData} class="lg:col-span-2 h-full"/>
             <Runtime initialData={runtimeData} class="lg:col-span-4 h-full"/>

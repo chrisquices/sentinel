@@ -147,7 +147,7 @@ class LogService
     {
         $channelConfig = self::getChannelByName($channel);
 
-        $perPage = config('sentinel.pagination', 15);
+        $perPage = config('sentinel.pagination', 20);
 
         if (!$channelConfig || !file_exists($channelConfig['path'])) {
             return ['entries' => [], 'total' => 0, 'tailCursor' => 0, 'perPage' => $perPage];
