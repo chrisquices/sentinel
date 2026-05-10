@@ -1,6 +1,6 @@
 <br />
 <div align="center">
-    <img src="./resources/img/logo.svg" alt="Logo" height="100">
+    <img src="./resources/img/logo.png" alt="Logo" height="100">
 </div>
 
 <h1 align="center">Sentinel</h1>
