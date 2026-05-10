@@ -107,6 +107,20 @@ export interface Job {
     exceptionFull?: string;
 }
 
+export interface JobPayload {
+    source: 'pending' | 'processing' | 'completed' | 'failed';
+    jobClass: string;
+    displayName: string;
+    queue: string;
+    connection: string | null;
+    attempts: number;
+    failedAt?: string | null;
+    exception?: string | null;
+    runTime?: number | null;
+    completedAt?: string | null;
+    payload?: Record<string, unknown> | null;
+}
+
 // Logs
 export interface LogInitialData {
     channels: LogChannel[];

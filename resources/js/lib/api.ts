@@ -1,11 +1,11 @@
 const base = (): string => {
-    const path = window.__sentinel?.basePath ?? 'sentinel';
-    return `/${path}/api`;
+    const pathname = window.location.pathname.replace(/\/+$/, '');
+    return `${pathname}/api`;
 };
 
 const headers = (): Record<string, string> => ({
     'Content-Type': 'application/json',
-    'X-CSRF-TOKEN': window.__sentinel?.csrfToken ?? '',
+    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '',
 });
 
 // region --- System ---------------------------------------------------------------------------------------------------
@@ -34,6 +34,11 @@ export async function fetchScheduler(): Promise<unknown> {
 
 // region --- Logs ----------------------------------------------------------------------------------------------------
 
+export async function fetchLogs(): Promise<unknown> {
+    const res = await fetch(`${base()}/logs`, {headers: headers()});
+    return res.json();
+}
+
 export async function fetchLogEntries(channel: string, page: number = 1, level: string = ''): Promise<unknown> {
     const params = new URLSearchParams({ page: String(page), level });
     const res = await fetch(`${base()}/logs/${encodeURIComponent(channel)}/entries?${params}`, {headers: headers()});
@@ -59,6 +64,11 @@ export async function clearLog(channel: string): Promise<unknown> {
 // region --- Queue ---------------------------------------------------------------------------------------------------
 
 // Queue
+export async function fetchJobPayload(id: string): Promise<unknown> {
+    const res = await fetch(`${base()}/queue/jobs/${encodeURIComponent(id)}`, {headers: headers()});
+    return res.json();
+}
+
 export async function fetchQueue(): Promise<unknown> {
     const res = await fetch(`${base()}/queue`, {headers: headers()});
     return res.json();

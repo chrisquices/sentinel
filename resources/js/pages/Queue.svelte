@@ -2,13 +2,15 @@
     import {onMount} from 'svelte';
     import * as Card from '$lib/components/ui/card';
     import * as Table from '$lib/components/ui/table';
-    import type {QueueData, QueueInitialData, Job} from '$lib/types';
+    import * as Dialog from '$lib/components/ui/dialog';
+    import type {QueueData, QueueInitialData, Job, JobPayload} from '$lib/types';
     import {Clock, Loader, CheckCheck, AlertCircle, ListTodo} from 'lucide-svelte';
     import * as ButtonGroup from '$lib/components/ui/button-group';
     import {Button} from '$lib/components/ui/button';
     import {RotateCcw, Trash2} from 'lucide-svelte';
     import {
         fetchQueue,
+        fetchJobPayload,
         clearCompletedJobs,
         clearFailedJobs,
         retryFailedJob,
@@ -50,6 +52,37 @@
 
         return () => clearInterval(interval);
     });
+    // endregion
+
+    // region --- Job Detail --------------------------------------------------------------------------------------------
+    let selectedJob = $state<Job | null>(null);
+    let jobPayload = $state<JobPayload | null>(null);
+    let loadingPayload = $state(false);
+
+    async function openJobDetail(job: Job) {
+        selectedJob = job;
+        jobPayload = null;
+        loadingPayload = true;
+        try {
+            jobPayload = await fetchJobPayload(job.id) as JobPayload;
+        } finally {
+            loadingPayload = false;
+        }
+    }
+
+    const sourceLabel: Record<string, string> = {
+        pending: 'Pending',
+        processing: 'Processing',
+        completed: 'Completed',
+        failed: 'Failed',
+    };
+
+    const sourceClass: Record<string, string> = {
+        pending: 'text-muted-foreground',
+        processing: 'text-blue-500',
+        completed: 'text-green-600',
+        failed: 'text-destructive',
+    };
     // endregion
 </script>
 
@@ -152,7 +185,7 @@
                             </Table.Row>
                         {:else}
                             {#each filteredJobs as job}
-                                <Table.Row>
+                                <Table.Row class="cursor-pointer" onclick={() => openJobDetail(job)}>
 
                                     <!-- Job -->
                                     <Table.Cell>{job.displayName}</Table.Cell>
@@ -190,7 +223,7 @@
                                         <Table.Cell class="text-right">
                                             <div class="flex items-center justify-end gap-2">
                                                 <Button variant="secondary" size="icon"
-                                                        onclick={() => deleteCompletedJob(job.id)}>
+                                                        onclick={(e) => { e.stopPropagation(); deleteCompletedJob(job.id); }}>
                                                     <Trash2/>
                                                 </Button>
                                             </div>
@@ -211,12 +244,12 @@
                                         <Table.Cell class="text-right">
                                             <div class="flex items-center justify-end gap-2">
                                                 <Button variant="secondary" size="icon"
-                                                        onclick={() => retryFailedJob(job.id)}>
+                                                        onclick={(e) => { e.stopPropagation(); retryFailedJob(job.id); }}>
                                                     <RotateCcw/>
                                                 </Button>
 
                                                 <Button variant="secondary" size="icon"
-                                                        onclick={() => deleteFailedJob(job.id)}>
+                                                        onclick={(e) => { e.stopPropagation(); deleteFailedJob(job.id); }}>
                                                     <Trash2/>
                                                 </Button>
                                             </div>
@@ -231,3 +264,75 @@
         </Card.Content>
     </Card.Root>
 </section>
+
+<Dialog.Root open={selectedJob !== null} onOpenChange={(open) => { if (!open) { selectedJob = null; jobPayload = null; } }}>
+    <Dialog.Content class="sm:max-w-3xl">
+        <Dialog.Header>
+            <Dialog.Title class="flex items-center gap-3">
+                {#if jobPayload}
+                    <span class={sourceClass[jobPayload.source]}>{sourceLabel[jobPayload.source]}</span>
+                    <span class="text-foreground">{jobPayload.displayName}</span>
+                {:else}
+                    <span>{selectedJob?.displayName ?? ''}</span>
+                {/if}
+            </Dialog.Title>
+            {#if jobPayload}
+                <Dialog.Description>{jobPayload.jobClass}</Dialog.Description>
+            {/if}
+        </Dialog.Header>
+        <Dialog.Body>
+            {#if loadingPayload}
+                <div class="flex items-center justify-center py-12">
+                    <Loader class="size-5 animate-spin text-muted-foreground"/>
+                </div>
+            {:else if jobPayload}
+                <div class="flex flex-col gap-6">
+
+                    <!-- Metadata -->
+                    <dl class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+                        <dt class="text-muted-foreground">Queue</dt>
+                        <dd>{jobPayload.queue}</dd>
+
+                        <dt class="text-muted-foreground">Connection</dt>
+                        <dd>{jobPayload.connection ?? '—'}</dd>
+
+                        <dt class="text-muted-foreground">Attempts</dt>
+                        <dd>{jobPayload.attempts}</dd>
+
+                        {#if jobPayload.runTime != null}
+                            <dt class="text-muted-foreground">Run Time</dt>
+                            <dd>{jobPayload.runTime}ms</dd>
+                        {/if}
+
+                        {#if jobPayload.completedAt}
+                            <dt class="text-muted-foreground">Completed At</dt>
+                            <dd>{jobPayload.completedAt}</dd>
+                        {/if}
+
+                        {#if jobPayload.failedAt}
+                            <dt class="text-muted-foreground">Failed At</dt>
+                            <dd>{jobPayload.failedAt}</dd>
+                        {/if}
+                    </dl>
+
+                    <!-- Exception -->
+                    {#if jobPayload.exception}
+                        <div>
+                            <p class="text-sm font-medium text-muted-foreground mb-2">Exception</p>
+                            <pre class="overflow-x-auto whitespace-pre-wrap break-words text-xs text-destructive">{jobPayload.exception}</pre>
+                        </div>
+                    {/if}
+
+                    <!-- Raw payload -->
+                    {#if jobPayload.payload}
+                        <div>
+                            <p class="text-sm font-medium text-muted-foreground mb-2">Payload</p>
+                            <pre class="overflow-x-auto whitespace-pre-wrap break-words text-xs">{JSON.stringify(jobPayload.payload, null, 2)}</pre>
+                        </div>
+                    {/if}
+
+                </div>
+            {/if}
+        </Dialog.Body>
+    </Dialog.Content>
+</Dialog.Root>

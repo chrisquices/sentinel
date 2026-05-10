@@ -9,9 +9,22 @@ class QueueController extends Controller
 {
     public function show()
     {
-        $queueData = QueueService::get();
+        return response()->json(QueueService::get());
+    }
 
-        return response()->json($queueData);
+    public function showJob(string $id)
+    {
+        if (! preg_match('/^[a-zA-Z0-9-]+$/', $id) || strlen($id) > 255) {
+            return response()->json(['error' => 'Invalid job ID.'], 400);
+        }
+
+        $payload = QueueService::getJobPayload($id);
+
+        if ($payload === null) {
+            return response()->json(['error' => 'Job not found.'], 404);
+        }
+
+        return response()->json($payload);
     }
 
     // Completed Jobs

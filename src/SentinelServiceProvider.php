@@ -3,10 +3,14 @@
 namespace Chrisquices\Sentinel;
 
 use Illuminate\Support\ServiceProvider;
-use Chrisquices\Sentinel\Console\Commands\SentinelWatchCommand;
+use Chrisquices\Sentinel\Http\Middleware\SentinelAuth;
 use Illuminate\Console\Events\ScheduledTaskFinished;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 
 class SentinelServiceProvider extends ServiceProvider
 {
@@ -22,14 +26,18 @@ class SentinelServiceProvider extends ServiceProvider
     {
         $this->registerPublishing();
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'sentinel');
-        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+        $this->registerRoutes();
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
-        if ($this->app->runningInConsole()) {
-            $this->commands([
-                SentinelWatchCommand::class,
-            ]);
-        }
+        Gate::define('viewSentinel', function ($user) {
+            return app()->environment('local');
+        });
+
+        RateLimiter::for('sentinel-mutations', function ($request) {
+            return Limit::perMinute(10)->by($request->ip())->response(function ($request, array $headers) {
+                return response()->json(['error' => 'Too many requests.'], 429, $headers);
+            });
+        });
 
         Event::listen(JobProcessed::class, function (JobProcessed $event) {
             \Chrisquices\Sentinel\Services\QueueService::recordCompletedJob($event);
@@ -37,6 +45,17 @@ class SentinelServiceProvider extends ServiceProvider
 
         Event::listen(ScheduledTaskFinished::class, function (ScheduledTaskFinished $event) {
             \Chrisquices\Sentinel\Services\SchedulerService::recordRun($event);
+        });
+    }
+
+    protected function registerRoutes(): void
+    {
+        Route::group([
+            'prefix' => config('sentinel.path', 'sentinel'),
+            'middleware' => array_merge(config('sentinel.middleware', ['web']), [SentinelAuth::class]),
+            'as' => 'sentinel.',
+        ], function () {
+            $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
         });
     }
 

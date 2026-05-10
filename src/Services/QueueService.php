@@ -162,6 +162,68 @@ class QueueService
         return $jobs;
     }
 
+    public static function getJobPayload(string $id): ?array
+    {
+        // Pending / processing (jobs table, keyed by uuid)
+        $job = DB::table('jobs')->where('uuid', $id)->first();
+        if ($job) {
+            $raw = json_decode($job->payload, true) ?? [];
+            unset($raw['data']['command']);
+            return [
+                'source'      => is_null($job->reserved_at) ? 'pending' : 'processing',
+                'jobClass'    => $raw['data']['commandName'] ?? $raw['job'] ?? 'Unknown',
+                'displayName' => $raw['displayName'] ?? 'Unknown',
+                'queue'       => $job->queue,
+                'connection'  => null,
+                'attempts'    => $job->attempts,
+                'payload'     => $raw,
+            ];
+        }
+
+        // Failed jobs (failed_jobs table, keyed by uuid)
+        $failed = DB::table('failed_jobs')->where('uuid', $id)->first();
+        if ($failed) {
+            $raw = json_decode($failed->payload, true) ?? [];
+            unset($raw['data']['command']);
+            return [
+                'source'      => 'failed',
+                'jobClass'    => $raw['data']['commandName'] ?? $raw['job'] ?? 'Unknown',
+                'displayName' => $raw['displayName'] ?? 'Unknown',
+                'queue'       => $failed->queue,
+                'connection'  => $failed->connection,
+                'attempts'    => $raw['attempts'] ?? 0,
+                'failedAt'    => $failed->failed_at,
+                'exception'   => $failed->exception,
+                'payload'     => $raw,
+            ];
+        }
+
+        // Completed jobs (sentinel_completed_jobs, integer id or uuid)
+        $completed = DB::table('sentinel_completed_jobs')
+            ->where(function ($q) use ($id) {
+                $q->where('uuid', $id);
+                if (is_numeric($id)) {
+                    $q->orWhere('id', (int) $id);
+                }
+            })
+            ->first();
+        if ($completed) {
+            return [
+                'source'      => 'completed',
+                'jobClass'    => $completed->job_class,
+                'displayName' => $completed->display_name,
+                'queue'       => $completed->queue,
+                'connection'  => $completed->connection,
+                'attempts'    => $completed->attempts,
+                'runTime'     => $completed->run_time,
+                'completedAt' => $completed->completed_at,
+                'payload'     => null,
+            ];
+        }
+
+        return null;
+    }
+
     public static function recordCompletedJob(object $event): void
     {
         $job = $event->job;

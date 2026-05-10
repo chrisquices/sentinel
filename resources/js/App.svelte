@@ -1,4 +1,5 @@
 <script lang="ts">
+    import {onMount} from 'svelte';
     import Topbar from '$lib/components/ui/Topbar.svelte';
     import System from './pages/System.svelte';
     import Runtime from './pages/Runtime.svelte';
@@ -12,8 +13,7 @@
         QueueInitialData,
         LogInitialData
     } from '$lib/types';
-    import {Button} from "$lib/components/ui/button";
-    import {Monitor, CalendarClock, ListTodo, ScrollText} from "lucide-svelte";
+    import {fetchSystem, fetchRuntime, fetchScheduler, fetchQueue, fetchLogs} from '$lib/api';
 
     interface Props {
         projectName?: string;
@@ -21,30 +21,31 @@
 
     let {projectName = 'My Project'}: Props = $props();
 
-    // region --- Initial Data -----------------------------------------------------------------------------------------
-    const sentinel = window.__sentinel;
+    let ready = $state(false);
+    let systemData = $state<SystemInitialData | null>(null);
+    let runtimeData = $state<RuntimeData | null>(null);
+    let schedulerData = $state<SchedulerInitialData | null>(null);
+    let queueData = $state<QueueInitialData | null>(null);
+    let logsData = $state<LogInitialData | null>(null);
 
-    let systemData = $state<SystemInitialData | null>(sentinel?.systemData ?? null);
-    let runtimeData = $state<RuntimeData | null>(sentinel?.runtimeData ?? null);
-    let schedulerData = $state<SchedulerInitialData | null>(sentinel?.schedulerData ?? null);
-    let queueData = $state<QueueInitialData | null>(sentinel?.queueData ?? null);
-    let logsData = $state<LogInitialData | null>(sentinel?.logsData ?? null);
-    // endregion
-
-    // region --- Active Tab -------------------------------------------------------------------------------------------
-    const tabs = ['system', 'scheduler', 'queue', 'logs'] as const;
-    type Tab = typeof tabs[number];
-
-    let activeTab = $state<Tab>(
-        (typeof localStorage !== 'undefined' ? localStorage.getItem('app:tab') as Tab : null) ?? 'scheduler'
-    );
-
-    $effect(() => {
-        localStorage.setItem('app:tab', activeTab);
+    onMount(async () => {
+        const [sys, rt, sched, queue, logs] = await Promise.all([
+            fetchSystem(),
+            fetchRuntime(),
+            fetchScheduler(),
+            fetchQueue(),
+            fetchLogs(),
+        ]);
+        systemData   = sys   as SystemInitialData;
+        runtimeData  = rt    as RuntimeData;
+        schedulerData = sched as SchedulerInitialData;
+        queueData    = queue as QueueInitialData;
+        logsData     = logs  as LogInitialData;
+        ready = true;
     });
-    // endregion
 </script>
 
+{#if ready}
 <div class="min-h-screen transition-colors duration-200 bg-background">
     <Topbar {projectName}/>
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -53,9 +54,8 @@
             <Runtime initialData={runtimeData} class="lg:col-span-4 h-full"/>
         </div>
         <Scheduler initialData={schedulerData}/>
-
         <Queue initialData={queueData}/>
-
         <Logs initialData={logsData}/>
     </main>
 </div>
+{/if}
