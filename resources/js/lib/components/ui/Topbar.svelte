@@ -25,7 +25,7 @@
 </script>
 
 <header class="sticky top-0 z-40 border-b border-border bg-sidebar backdrop-blur-sm">
-    <div class="px-4 sm:px-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 3xl:max-w-none 3xl:mx-0 3xl:px-6">
         <div class="flex items-center justify-between h-16">
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary">
