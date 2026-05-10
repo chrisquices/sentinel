@@ -172,7 +172,7 @@
 
                 <!-- Channel Selector -->
                 <Select.Root type="single" value={activeChannel} onValueChange={(v) => { activeChannel = v; page = 1; }}>
-                    <Select.Trigger class="w-64 capitalize">{activeChannel}</Select.Trigger>
+                    <Select.Trigger class="w-44 capitalize">{activeChannel}</Select.Trigger>
                     <Select.Content>
                         {#each channels as channel}
                             <Select.Item value={channel.name} class="capitalize">{channel.name}</Select.Item>
