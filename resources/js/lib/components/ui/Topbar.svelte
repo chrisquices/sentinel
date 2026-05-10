@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { Sun, Moon, Flame } from 'lucide-svelte';
+    import { Sun, Moon } from 'lucide-svelte';
+    import logo from '../../../../img/logo.png';
 
     interface Props {
         projectName?: string;
@@ -28,9 +29,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 3xl:max-w-none 3xl:mx-0 3xl:px-6">
         <div class="flex items-center justify-between h-16">
             <div class="flex items-center gap-4">
-                <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary">
-                    <Flame class="size-4.5 text-primary-foreground" />
-                </div>
+                <img src={logo} alt="Sentinel" class="w-8 h-8" />
                 <div>
                     <span class="font-semibold text-foreground">Sentinel</span>
                     <span class="ml-2 text-muted-foreground">{projectName}</span>
