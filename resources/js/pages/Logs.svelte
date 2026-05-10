@@ -144,44 +144,42 @@
     <h2 class="font-semibold text-foreground mb-4 flex items-center gap-2"><ScrollText class="size-4"/>Logs</h2>
 
     <Card.Root>
-        <Card.Header class="h-auto py-6 flex-col">
+        <Card.Header>
 
-            <div class="flex flex-row items-center justify-between w-full">
+            <!-- Level Filter -->
+            <ButtonGroup.Root>
+                {#each levels as lvl}
+                    {@const Icon = lvl === '' ? null : levelIcon[lvl]}
+                    <Button
+                            onclick={() => { activeLevel = lvl; page = 1; }}
+                            variant={activeLevel === lvl ? 'default' : 'outline'}
+                            class="capitalize"
+                    >
+                        {#if Icon}
+                            <Icon class="size-4 mr-1"/>
+                        {/if}
+                        {lvl === '' ? 'All' : lvl}
+                    </Button>
+                {/each}
+            </ButtonGroup.Root>
 
-                <!-- Level Filter -->
-                <ButtonGroup.Root>
-                    {#each levels as lvl}
-                        {@const Icon = lvl === '' ? null : levelIcon[lvl]}
-                        <Button
-                                onclick={() => { activeLevel = lvl; page = 1; }}
-                                variant={activeLevel === lvl ? 'default' : 'outline'}
-                                class="capitalize"
-                        >
-                            {#if Icon}
-                                <Icon class="size-4 mr-1"/>
-                            {/if}
-                            {lvl === '' ? 'All' : lvl}
-                        </Button>
-                    {/each}
-                </ButtonGroup.Root>
+            <div class="flex flex-wrap gap-2 w-full">
 
+                <!-- Refresh Log -->
                 <Button variant="secondary" onclick={refresh} disabled={loading}>
                     <RefreshCw class="size-4 {loading ? 'animate-spin' : ''}"/>
                     Refresh
                 </Button>
-            </div>
 
-            <!-- Channel Selector -->
-            <div class="flex flex-wrap gap-2 w-full">
-                {#each channels as channel}
-                    <Button
-                            onclick={() => { activeChannel = channel.name; page = 1; }}
-                            variant={activeChannel === channel.name ? 'default' : 'outline'}
-                            class="capitalize"
-                    >
-                        {channel.name}
-                    </Button>
-                {/each}
+                <!-- Channel Selector -->
+                <Select.Root type="single" value={activeChannel} onValueChange={(v) => { activeChannel = v; page = 1; }}>
+                    <Select.Trigger class="w-[180px] capitalize">{activeChannel}</Select.Trigger>
+                    <Select.Content>
+                        {#each channels as channel}
+                            <Select.Item value={channel.name} class="capitalize">{channel.name}</Select.Item>
+                        {/each}
+                    </Select.Content>
+                </Select.Root>
             </div>
         </Card.Header>
 
