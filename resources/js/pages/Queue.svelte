@@ -139,7 +139,7 @@
             <div class="overflow-y-auto max-h-80 3xl:max-h-none 3xl:h-full [&_[data-slot='table-container']]:h-full">
 
                 <!-- Jobs -->
-                <Table.Root class="h-full">
+                <Table.Root class={filteredJobs.length ? 'h-full' : ''}>
                     <Table.Header>
                         <Table.Row>
                             <!-- Job -->

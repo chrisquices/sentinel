@@ -223,7 +223,7 @@
 
         <Card.Content class="p-0 3xl:flex-1 3xl:overflow-hidden">
             <div class="3xl:h-full 3xl:overflow-y-auto [&_[data-slot='table-container']]:h-full">
-                <Table.Root class="h-full">
+                <Table.Root class={!entries.length || entries.length === 0 ? 'h-full' : ''}>
                     <Table.Header>
                         <Table.Row>
 
