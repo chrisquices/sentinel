@@ -11,6 +11,7 @@
     import {Button} from '$lib/components/ui/button';
     import * as ButtonGroup from '$lib/components/ui/button-group';
     import {fetchLogEntries, fetchLogTail, clearLog} from '$lib/api';
+    import {toast} from 'svelte-sonner';
     import {Trash2, RefreshCw, ScrollText, Search} from 'lucide-svelte';
     import {type BadgeVariant} from '$lib/components/ui/badge';
     import {AlertTriangle, Bug, Info, AlertCircle, Flame} from 'lucide-svelte';
@@ -134,6 +135,19 @@
         void loadEntries(activeChannel, page, activeLevel, search);
     }
 
+    async function wipeLog() {
+        try {
+            await clearLog(activeChannel);
+            entries = [];
+            total = 0;
+            tailCursor = 0;
+            page = 1;
+            toast.success('Log cleared', { description: `${activeChannel} log has been wiped.` });
+        } catch {
+            toast.error('Failed to clear log', { description: 'Something went wrong. Please try again.' });
+        }
+    }
+
     // endregion
 
     // region --- Log Dialog --------------------------------------------------------------------------------------------
@@ -174,6 +188,11 @@
                 <!-- Refresh Log -->
                 <Button variant="secondary" onclick={refresh} disabled={loading}>
                     <RefreshCw class="size-4 {loading ? 'animate-spin' : ''}"/>
+                </Button>
+
+                <!-- Wipe Log -->
+                <Button variant="secondary" onclick={wipeLog} disabled={loading}>
+                    <Trash2 class="size-4"/>
                 </Button>
 
                 <!-- Channel Selector -->

@@ -1,5 +1,6 @@
 <script lang="ts">
     import {onMount} from 'svelte';
+    import {Toaster} from 'svelte-sonner';
     import Topbar from '$lib/components/ui/Topbar.svelte';
     import System from './pages/System.svelte';
     import Runtime from './pages/Runtime.svelte';
@@ -44,6 +45,16 @@
         ready = true;
     });
 </script>
+
+<Toaster
+    theme="dark"
+    position="top-right"
+    expand
+    visibleToasts={3}
+    richColors
+    duration={3000}
+    toastOptions={{ class: '!w-108 right-0', descriptionClass: '!w-108' }}
+/>
 
 {#if ready}
 <div class="min-h-screen transition-colors duration-200 bg-background">
