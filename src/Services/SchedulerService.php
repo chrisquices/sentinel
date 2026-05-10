@@ -29,7 +29,7 @@ class SchedulerService
             $schedule = app(Schedule::class);
 
         } catch (\Throwable) {
-            return ['events' => []];
+            return [];
         }
 
         $events = [];
