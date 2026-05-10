@@ -168,7 +168,6 @@
                 <!-- Refresh Log -->
                 <Button variant="secondary" onclick={refresh} disabled={loading}>
                     <RefreshCw class="size-4 {loading ? 'animate-spin' : ''}"/>
-                    Refresh
                 </Button>
 
                 <!-- Channel Selector -->
