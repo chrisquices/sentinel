@@ -84,7 +84,10 @@
 
 <section class="3xl:h-full 3xl:flex 3xl:flex-col">
 
-    <h2 class="font-semibold text-foreground mb-4 flex items-center gap-2 3xl:shrink-0"><ListTodo class="size-4"/>Queue</h2>
+    <h2 class="font-semibold text-foreground mb-4 flex items-center gap-2 3xl:shrink-0">
+        <ListTodo class="size-4"/>
+        Queue
+    </h2>
 
     <Card.Root class="3xl:flex-1 3xl:flex 3xl:flex-col 3xl:min-h-0 3xl:overflow-hidden">
         <Card.Header>
@@ -135,135 +138,136 @@
         <Card.Content class="p-0 overflow-hidden 3xl:flex-1">
             <div class="overflow-y-auto max-h-80 3xl:max-h-none 3xl:h-full">
 
-            <!-- Jobs -->
-            <Table.Root>
-                <Table.Header>
-                    <Table.Row>
-                        <!-- Job -->
-                        <Table.Head class="rounded-none!">Job</Table.Head>
+                <!-- Jobs -->
+                <Table.Root class="h-full">
+                    <Table.Header>
+                        <Table.Row>
+                            <!-- Job -->
+                            <Table.Head class="rounded-none!">Job</Table.Head>
 
-                        <!-- Queue -->
-                        <Table.Head class="rounded-none!">Queue</Table.Head>
+                            <!-- Queue -->
+                            <Table.Head class="rounded-none!">Queue</Table.Head>
 
-                        <!-- Attempts -->
-                        <Table.Head class="rounded-none!">Attempts</Table.Head>
+                            <!-- Attempts -->
+                            <Table.Head class="rounded-none!">Attempts</Table.Head>
 
-                        <!-- Run Time -->
-                        {#if activeFilter === 'completed'}
-                            <Table.Head class="rounded-none!">Run Time</Table.Head>
-                        {/if}
+                            <!-- Run Time -->
+                            {#if activeFilter === 'completed'}
+                                <Table.Head class="rounded-none!">Run Time</Table.Head>
+                            {/if}
 
-                        <!-- Exception -->
-                        {#if activeFilter === 'failed'}
-                            <Table.Head class="rounded-none!">Exception</Table.Head>
-                        {/if}
+                            <!-- Exception -->
+                            {#if activeFilter === 'failed'}
+                                <Table.Head class="rounded-none!">Exception</Table.Head>
+                            {/if}
 
-                        <!-- Timestamp (Created At / Completed At / Failed At) -->
-                        <Table.Head class="rounded-none! text-right">
-                            {activeFilter === 'failed' ? 'Failed At' : activeFilter === 'completed' ? 'Completed At' : 'Created At'}
-                        </Table.Head>
+                            <!-- Timestamp (Created At / Completed At / Failed At) -->
+                            <Table.Head class="rounded-none! text-right">
+                                {activeFilter === 'failed' ? 'Failed At' : activeFilter === 'completed' ? 'Completed At' : 'Created At'}
+                            </Table.Head>
 
-                        <!-- Actions -->
-                        {#if activeFilter === 'completed' || activeFilter === 'failed'}
-                            <Table.Head class="rounded-none! text-right">Actions</Table.Head>
-                        {/if}
-                    </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                    {#if initialData}
-                        {#if filteredJobs.length === 0}
+                            <!-- Actions -->
+                            {#if activeFilter === 'completed' || activeFilter === 'failed'}
+                                <Table.Head class="rounded-none! text-right">Actions</Table.Head>
+                            {/if}
+                        </Table.Row>
+                    </Table.Header>
+                    <Table.Body>
+                        {#if initialData}
+                            {#if filteredJobs.length === 0}
 
-                            <!-- No results found -->
-                            <Table.Row>
-                                <Table.Cell colspan={99}
-                                            class="text-center py-8 text-muted-foreground">
-                                    No {activeFilter} jobs
-                                </Table.Cell>
-                            </Table.Row>
-                        {:else}
-                            {#each filteredJobs as job}
-                                <Table.Row class="cursor-pointer" onclick={() => openJobDetail(job)}>
-
-                                    <!-- Job -->
-                                    <Table.Cell>{job.displayName}</Table.Cell>
-
-                                    <!-- Queue -->
-                                    <Table.Cell>{job.queue}</Table.Cell>
-
-                                    <!-- Attempts -->
-                                    <Table.Cell>{job.attempts}</Table.Cell>
-
-                                    <!-- Pending -->
-                                    {#if activeFilter === 'pending'}
-
-                                        <!-- Timestamp (Created At / Completed At / Failed At) -->
-                                        <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
-                                    {/if}
-
-                                    <!-- Processing -->
-                                    {#if activeFilter === 'processing'}
-
-                                        <!-- Timestamp (Created At / Completed At / Failed At) -->
-                                        <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
-                                    {/if}
-
-                                    <!-- Completed -->
-                                    {#if activeFilter === 'completed'}
-
-                                        <!-- Run Time -->
-                                        <Table.Cell>{job.runTimeFormatted ?? '—'}</Table.Cell>
-
-                                        <!-- Timestamp -->
-                                        <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
-
-                                        <!-- Actions -->
-                                        <Table.Cell class="text-right">
-                                            <div class="flex items-center justify-end gap-2">
-                                                <Button variant="secondary" size="icon"
-                                                        onclick={(e) => { e.stopPropagation(); deleteCompletedJob(job.id); }}>
-                                                    <Trash2/>
-                                                </Button>
-                                            </div>
-                                        </Table.Cell>
-                                    {/if}
-
-                                    <!-- Failed -->
-                                    {#if activeFilter === 'failed'}
-
-                                        <!-- Exception -->
-                                        <Table.Cell class="max-w-xs truncate"
-                                                    title={job.exceptionFull}>{job.exception}</Table.Cell>
-
-                                        <!-- Timestamp -->
-                                        <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
-
-                                        <!-- Actions -->
-                                        <Table.Cell class="text-right">
-                                            <div class="flex items-center justify-end gap-2">
-                                                <Button variant="secondary" size="icon"
-                                                        onclick={(e) => { e.stopPropagation(); retryFailedJob(job.id); }}>
-                                                    <RotateCcw/>
-                                                </Button>
-
-                                                <Button variant="secondary" size="icon"
-                                                        onclick={(e) => { e.stopPropagation(); deleteFailedJob(job.id); }}>
-                                                    <Trash2/>
-                                                </Button>
-                                            </div>
-                                        </Table.Cell>
-                                    {/if}
+                                <!-- No results found -->
+                                <Table.Row>
+                                    <Table.Cell colspan={99}
+                                                class="text-center py-8 text-muted-foreground">
+                                        No {activeFilter} jobs
+                                    </Table.Cell>
                                 </Table.Row>
-                            {/each}
+                            {:else}
+                                {#each filteredJobs as job}
+                                    <Table.Row class="cursor-pointer" onclick={() => openJobDetail(job)}>
+
+                                        <!-- Job -->
+                                        <Table.Cell>{job.displayName}</Table.Cell>
+
+                                        <!-- Queue -->
+                                        <Table.Cell>{job.queue}</Table.Cell>
+
+                                        <!-- Attempts -->
+                                        <Table.Cell>{job.attempts}</Table.Cell>
+
+                                        <!-- Pending -->
+                                        {#if activeFilter === 'pending'}
+
+                                            <!-- Timestamp (Created At / Completed At / Failed At) -->
+                                            <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
+                                        {/if}
+
+                                        <!-- Processing -->
+                                        {#if activeFilter === 'processing'}
+
+                                            <!-- Timestamp (Created At / Completed At / Failed At) -->
+                                            <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
+                                        {/if}
+
+                                        <!-- Completed -->
+                                        {#if activeFilter === 'completed'}
+
+                                            <!-- Run Time -->
+                                            <Table.Cell>{job.runTimeFormatted ?? '—'}</Table.Cell>
+
+                                            <!-- Timestamp -->
+                                            <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
+
+                                            <!-- Actions -->
+                                            <Table.Cell class="text-right">
+                                                <div class="flex items-center justify-end gap-2">
+                                                    <Button variant="secondary" size="icon"
+                                                            onclick={(e) => { e.stopPropagation(); deleteCompletedJob(job.id); }}>
+                                                        <Trash2/>
+                                                    </Button>
+                                                </div>
+                                            </Table.Cell>
+                                        {/if}
+
+                                        <!-- Failed -->
+                                        {#if activeFilter === 'failed'}
+
+                                            <!-- Exception -->
+                                            <Table.Cell class="max-w-xs truncate"
+                                                        title={job.exceptionFull}>{job.exception}</Table.Cell>
+
+                                            <!-- Timestamp -->
+                                            <Table.Cell class="text-right">{job.createdAtFormatted}</Table.Cell>
+
+                                            <!-- Actions -->
+                                            <Table.Cell class="text-right">
+                                                <div class="flex items-center justify-end gap-2">
+                                                    <Button variant="secondary" size="icon"
+                                                            onclick={(e) => { e.stopPropagation(); retryFailedJob(job.id); }}>
+                                                        <RotateCcw/>
+                                                    </Button>
+
+                                                    <Button variant="secondary" size="icon"
+                                                            onclick={(e) => { e.stopPropagation(); deleteFailedJob(job.id); }}>
+                                                        <Trash2/>
+                                                    </Button>
+                                                </div>
+                                            </Table.Cell>
+                                        {/if}
+                                    </Table.Row>
+                                {/each}
+                            {/if}
                         {/if}
-                    {/if}
-                </Table.Body>
-            </Table.Root>
+                    </Table.Body>
+                </Table.Root>
             </div>
         </Card.Content>
     </Card.Root>
 </section>
 
-<Dialog.Root open={selectedJob !== null} onOpenChange={(open) => { if (!open) { selectedJob = null; jobPayload = null; } }}>
+<Dialog.Root open={selectedJob !== null}
+             onOpenChange={(open) => { if (!open) { selectedJob = null; jobPayload = null; } }}>
     <Dialog.Content class="sm:max-w-3xl">
         <Dialog.Header>
             <Dialog.Title class="flex items-center gap-3">
