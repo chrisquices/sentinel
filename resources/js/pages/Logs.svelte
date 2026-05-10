@@ -174,7 +174,7 @@
 
                 <!-- Channel Selector -->
                 <Select.Root type="single" value={activeChannel} onValueChange={(v) => { activeChannel = v; page = 1; }}>
-                    <Select.Trigger class="w-44 capitalize">{activeChannel}</Select.Trigger>
+                    <Select.Trigger class="w-36 capitalize">{activeChannel}</Select.Trigger>
                     <Select.Content>
                         {#each channels as channel}
                             <Select.Item value={channel.name} class="capitalize">{channel.name}</Select.Item>
@@ -182,12 +182,14 @@
                     </Select.Content>
                 </Select.Root>
 
-                <InputGroup.Root>
-                    <InputGroup.Input placeholder="Search in logs..." />
-                    <InputGroup.Addon>
-                        <Search class="size-4 shrink-0" />
-                    </InputGroup.Addon>
-                </InputGroup.Root>
+                <div class="w-56">
+                    <InputGroup.Root>
+                        <InputGroup.Input placeholder="Search in logs..." />
+                        <InputGroup.Addon>
+                            <Search class="size-4 shrink-0" />
+                        </InputGroup.Addon>
+                    </InputGroup.Root>
+                </div>
             </div>
         </Card.Header>
 
