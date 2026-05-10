@@ -2,7 +2,7 @@
 
 return [
 
-    'path' => env('SENTINEL_PATH', 'sentinel'),
+    'path' => 'sentinel',
 
     'middleware' => ['web'],
 

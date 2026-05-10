@@ -56,6 +56,8 @@
    php artisan migrate
    ```
 
+Once installed, visit `https://your-app.com/sentinel`. Change the `path` config value if you want a different URL.
+
 ---
 
 ## Configuration
@@ -65,7 +67,7 @@ After publishing, edit `config/sentinel.php`:
 ```php
 return [
     // URL path where the dashboard is served
-    'path' => env('SENTINEL_PATH', 'sentinel'),
+    'path' => 'sentinel',
 
     // Middleware applied to all Sentinel routes
     'middleware' => ['web'],
@@ -73,20 +75,13 @@ return [
     // Display name shown in the dashboard header
     'project_name' => env('APP_NAME', 'My Project'),
 
-    // Number of log entries per page
+    // Number of entries per page in the log viewer
     'pagination' => 20,
 
     // How often (seconds) the frontend polls the queue and log tail endpoints
     'poll_interval' => 3,
 ];
 ```
-
-### Environment variables
-
-| Variable | Default | Description |
-|---|---|---|
-| `SENTINEL_PATH` | `sentinel` | URL path for the dashboard |
-| `APP_NAME` | `My Project` | Project name shown in the header |
 
 ---
 
@@ -109,7 +104,7 @@ public function boot(): void
 
 The gate callback receives the currently authenticated user, or `null` if the request is unauthenticated. Unauthenticated requests that fail the gate return `401`. Authenticated requests that fail return `403`.
 
-To allow access without any user (e.g. IP-based or environment-based):
+To allow access without a user (e.g. IP-based):
 
 ```php
 Gate::define('viewSentinel', function ($user) {
@@ -122,39 +117,39 @@ Gate::define('viewSentinel', function ($user) {
 ## Features
 
 ### System
-Displays live CPU usage (with a rolling 60-sample history graph), memory usage and availability, and disk storage — all read directly from the host OS.
+Live CPU usage with a rolling 60-sample history graph, memory usage and availability, and disk storage — all read directly from the host OS.
 
 ### Runtime
-Shows PHP version, SAPI, memory limit, max execution time, upload limits, and OPcache status (enabled state, hit ratio, memory used/free, cached script count).
+PHP version, SAPI, memory limit, max execution time, upload limits, and OPcache status (enabled state, hit ratio, memory used/free, cached script count).
 
 ### Scheduler
 Lists all commands registered in the Laravel console kernel. For each task:
 - Cron expression with a human-readable description
-- Live countdown to the next run (updates every second)
+- Live countdown to the next run (updates every second in the browser)
 - Last ran time and exit status (success / failed / never run)
 
 Run history is stored in the `sentinel_scheduler_runs` table and persists across deployments.
 
 ### Queue
 
-Supports the **database** and **redis** queue drivers. If the app uses any other driver, the panel displays a clear message rather than empty tables.
+Supports the **database** and **redis** queue drivers. If the app uses any other driver, the panel displays a clear unsupported message rather than empty tables.
 
-Tabs: Pending, Processing, Completed, Failed — each with a live job count. Clicking any row opens a detail dialog showing queue, connection, attempts, run time, completed/failed timestamps, full exception trace, and raw payload.
+Tabs: Pending, Processing, Completed, Failed — each with a live job count that polls every `poll_interval` seconds. Clicking any row opens a detail dialog showing queue, connection, attempts, run time, completed/failed timestamps, full exception trace, and raw payload.
 
-Actions available per tab:
+Actions:
 - **Failed** — retry a single job or bulk-delete all failed jobs
 - **Completed** — delete a single job or bulk-delete all completed jobs
 
-Completed job tracking is handled by Sentinel's own `sentinel_completed_jobs` table. The frontend polls on the configured `poll_interval`.
+Completed job tracking uses Sentinel's own `sentinel_completed_jobs` table.
 
 ### Logs
 
 Reads all configured Laravel log channels that have an existing file (single and daily drivers, including stack channels). Features:
 
 - **Level filter** — All, Error, Warning, Info, Debug
-- **Full-text search** — filters across all log entries for the active channel
+- **Full-text search** — searches across all entries for the active channel
 - **Pagination** — controlled by the `pagination` config value
-- **Live tail** — new log lines are automatically prepended every `poll_interval` seconds when on page 1 with no active search
+- **Live tail** — new entries are prepended automatically every `poll_interval` seconds when on page 1 with no active search
 - **Detail dialog** — click any row to see the full message and stack trace
 - **Delete** — wipe the active channel's log file, with a confirmation dialog
 
@@ -168,21 +163,9 @@ All mutation endpoints (retry, delete, bulk-delete, log wipe) are protected by a
 
 ---
 
-## Usage
-
-Once installed, visit:
-
-```
-https://your-app.com/sentinel
-```
-
-Replace `sentinel` with the value of `path` in your config if you changed it.
-
----
-
 ## Local Development
 
-After making changes to Sentinel, build the frontend assets, then update and republish them in the consuming app:
+After making changes to Sentinel, build the frontend assets and republish them in the consuming app:
 
 ```bash
 # In the sentinel package
