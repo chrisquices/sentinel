@@ -3,7 +3,7 @@
     import * as Card from '$lib/components/ui/card';
     import * as Table from '$lib/components/ui/table';
     import type {QueueData, QueueInitialData, Job} from '$lib/types';
-    import {Clock, Loader, CheckCheck, AlertCircle} from 'lucide-svelte';
+    import {Clock, Loader, CheckCheck, AlertCircle, ListTodo} from 'lucide-svelte';
     import * as ButtonGroup from '$lib/components/ui/button-group';
     import {Button} from '$lib/components/ui/button';
     import {RotateCcw, Trash2} from 'lucide-svelte';
@@ -15,7 +15,6 @@
         deleteCompletedJob,
         deleteFailedJob
     } from "$lib/api";
-    import {Skeleton} from '$lib/components/ui/skeleton';
 
     interface Props {
         initialData?: QueueInitialData | null;
@@ -55,6 +54,9 @@
 </script>
 
 <section>
+
+    <h2 class="font-semibold text-foreground mb-4 flex items-center gap-2"><ListTodo class="size-4"/>Queue</h2>
+
     <Card.Root>
         <Card.Header>
             <!-- Filter Button Group -->
@@ -223,32 +225,6 @@
                                 </Table.Row>
                             {/each}
                         {/if}
-                    {:else}
-                        {#each Array(5).fill(0) as _}
-                            <Table.Row>
-
-                                <!-- Job -->
-                                <Table.Cell>
-                                    <Skeleton class="h-4 w-40 mb-1"/>
-                                    <Skeleton class="h-3 w-56"/>
-                                </Table.Cell>
-
-                                <!-- Queue -->
-                                <Table.Cell>
-                                    <Skeleton class="h-4 w-16"/>
-                                </Table.Cell>
-
-                                <!-- Attempts -->
-                                <Table.Cell>
-                                    <Skeleton class="h-4 w-8"/>
-                                </Table.Cell>
-
-                                <!-- Timestamp -->
-                                <Table.Cell class="text-right">
-                                    <Skeleton class="h-4 w-24 ml-auto"/>
-                                </Table.Cell>
-                            </Table.Row>
-                        {/each}
                     {/if}
                 </Table.Body>
             </Table.Root>

@@ -47,45 +47,15 @@
 
 <div class="min-h-screen transition-colors duration-200 bg-background">
     <Topbar {projectName}/>
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-
-        <div class="flex items-center gap-2">
-            <Button variant={activeTab === 'system' ? 'default' : 'secondary'} onclick={() => activeTab = 'system'}>
-                <Monitor class="size-4"/>
-                System
-            </Button>
-
-            <Button variant={activeTab === 'scheduler' ? 'default' : 'secondary'} onclick={() => activeTab = 'scheduler'}>
-                <CalendarClock class="size-4"/>
-                Scheduler
-            </Button>
-
-            <Button variant={activeTab === 'queue' ? 'default' : 'secondary'} onclick={() => activeTab = 'queue'}>
-                <ListTodo class="size-4"/>
-                Queue
-            </Button>
-
-            <Button variant={activeTab === 'logs' ? 'default' : 'secondary'} onclick={() => activeTab = 'logs'}>
-                <ScrollText class="size-4"/>
-                Logs
-            </Button>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <div class="grid grid-cols-1 lg:grid-cols-6 gap-6 items-stretch">
+            <System initialData={systemData} class="lg:col-span-2 h-full"/>
+            <Runtime initialData={runtimeData} class="lg:col-span-4 h-full"/>
         </div>
+        <Scheduler initialData={schedulerData}/>
 
-        {#if activeTab === 'system'}
-            <div class="grid grid-cols-1 lg:grid-cols-6 gap-6 items-stretch">
-                <System initialData={systemData} class="lg:col-span-2 h-full"/>
-                <Runtime initialData={runtimeData} class="lg:col-span-4 h-full"/>
-            </div>
-        {/if}
-        {#if activeTab === 'scheduler'}
-            <Scheduler initialData={schedulerData}/>
-        {/if}
-        {#if activeTab === 'queue'}
-            <Queue initialData={queueData}/>
-        {/if}
-        {#if activeTab === 'logs'}
-            <Logs initialData={logsData}/>
-        {/if}
+        <Queue initialData={queueData}/>
 
+        <Logs initialData={logsData}/>
     </main>
 </div>

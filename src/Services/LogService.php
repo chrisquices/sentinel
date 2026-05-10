@@ -17,7 +17,7 @@ class LogService
             return ['channels' => [], 'entries' => [], 'total' => 0, 'tailCursor' => 0];
         }
 
-        $logs = self::getLogs($first, 1, 25, null);
+        $logs = self::getLogs($first, 1, null);
 
         return [
             'channels' => $channels,
@@ -140,7 +140,7 @@ class LogService
         return $offsets;
     }
 
-    public static function getLogs(string $channel, int $page, int $perPage, ?string $level): array
+    public static function getLogs(string $channel, int $page, ?string $level): array
     {
         $channelConfig = self::getChannelByName($channel);
 
@@ -164,7 +164,7 @@ class LogService
 
         $total       = count($filtered);
         $reversed    = array_reverse($filtered);
-        $pageOffsets = array_slice($reversed, ($page - 1) * $perPage, $perPage);
+        $pageOffsets = array_slice($reversed, ($page - 1) * 20, 20);
 
         if (empty($pageOffsets)) {
             return ['entries' => [], 'total' => $total, 'tailCursor' => $fileSize];

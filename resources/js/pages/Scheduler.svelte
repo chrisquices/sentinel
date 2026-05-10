@@ -6,7 +6,6 @@
     import type {SchedulerInitialData, SchedulerData, SchedulerTask} from '$lib/types';
     import {fetchScheduler} from '$lib/api';
     import {CalendarClock} from 'lucide-svelte';
-    import {Skeleton} from '$lib/components/ui/skeleton';
 
     interface Props {
         initialData?: SchedulerInitialData | null;
@@ -69,6 +68,9 @@
 </script>
 
 <section>
+
+    <h2 class="font-semibold text-foreground mb-4 flex items-center gap-2"><CalendarClock class="size-4"/>Scheduler</h2>
+
     <Card.Root>
         <Card.Content class="p-0">
             <Table.Root>
@@ -128,27 +130,6 @@
                                 </Table.Row>
                             {/each}
                         {/if}
-                    {:else}
-                        {#each Array(5).fill(0) as _}
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Skeleton class="h-4 w-48"/>
-                                </Table.Cell>
-                                <Table.Cell>
-                                    <Skeleton class="h-4 w-24 mb-1"/>
-                                    <Skeleton class="h-3 w-16"/>
-                                </Table.Cell>
-                                <Table.Cell>
-                                    <Skeleton class="h-4 w-16"/>
-                                </Table.Cell>
-                                <Table.Cell>
-                                    <Skeleton class="h-4 w-20"/>
-                                </Table.Cell>
-                                <Table.Cell class="text-right">
-                                    <Skeleton class="h-5 w-20 ml-auto"/>
-                                </Table.Cell>
-                            </Table.Row>
-                        {/each}
                     {/if}
                 </Table.Body>
             </Table.Root>

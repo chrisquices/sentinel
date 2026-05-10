@@ -9,12 +9,11 @@
     import {Button} from '$lib/components/ui/button';
     import * as ButtonGroup from '$lib/components/ui/button-group';
     import {fetchLogEntries, fetchLogTail, clearLog} from '$lib/api';
-    import {Trash2, RefreshCw} from 'lucide-svelte';
+    import {Trash2, RefreshCw, ScrollText} from 'lucide-svelte';
     import {type BadgeVariant} from '$lib/components/ui/badge';
     import {AlertTriangle, Bug, Info, AlertCircle, Flame} from 'lucide-svelte';
     import type {ComponentType} from 'svelte';
     import type {LogChannel, LogEntry, LogEntriesResult, LogTailResult, LogInitialData} from '$lib/types';
-    import {Skeleton} from '$lib/components/ui/skeleton';
 
     interface Props {
         initialData?: LogInitialData | null;
@@ -86,36 +85,42 @@
     let tailCursor = $state<number>(0);
     let total = $state<number>(0);
     let loading = $state(false);
-    const perPage = 20;
     let page = $state(1);
 
-    $effect(() => {
-        if (initialData && entries.length === 0) {
-            entries = initialData.entries;
-            tailCursor = initialData.tailCursor;
-            total = initialData.total;
-        }
-    });
+    let initialDataConsumed = false;
+    let fetchSeq = 0;
 
     $effect(() => {
         const ch = activeChannel;
         const lvl = activeLevel;
         const pg = page;
-        if (ch) {
-            untrack(() => void loadEntries(ch, pg, lvl));
-        }
+
+        if (!ch) return;
+
+        untrack(() => {
+            if (!initialDataConsumed && initialData && lvl === '' && pg === 1 && ch === channels[0]?.name) {
+                entries = initialData.entries;
+                tailCursor = initialData.tailCursor;
+                total = initialData.total;
+                initialDataConsumed = true;
+                return;
+            }
+            entries = [];
+            void loadEntries(ch, pg, lvl);
+        });
     });
 
     async function loadEntries(ch: string, pg: number, lvl: string) {
-        if (loading) return;
+        const seq = ++fetchSeq;
         loading = true;
         try {
-            const result = await fetchLogEntries(ch, pg, perPage, lvl) as LogEntriesResult;
+            const result = await fetchLogEntries(ch, pg, lvl) as LogEntriesResult;
+            if (seq !== fetchSeq) return;
             entries = result.entries;
             total = result.total;
             tailCursor = result.tailCursor;
         } finally {
-            loading = false;
+            if (seq === fetchSeq) loading = false;
         }
     }
 
@@ -132,6 +137,9 @@
 </script>
 
 <section>
+
+    <h2 class="font-semibold text-foreground mb-4 flex items-center gap-2"><ScrollText class="size-4"/>Logs</h2>
+
     <Card.Root>
         <Card.Header class="h-auto py-6 flex-col">
 
@@ -162,21 +170,15 @@
 
             <!-- Channel Selector -->
             <div class="flex flex-wrap gap-2 w-full">
-                {#if initialData}
-                    {#each channels as channel}
-                        <Button
-                                onclick={() => { activeChannel = channel.name; page = 1; }}
-                                variant={activeChannel === channel.name ? 'default' : 'outline'}
-                                class="capitalize"
-                        >
-                            {channel.name}
-                        </Button>
-                    {/each}
-                {:else}
-                    {#each Array(3).fill(0) as _}
-                        <Skeleton class="h-9 w-20 rounded-md"/>
-                    {/each}
-                {/if}
+                {#each channels as channel}
+                    <Button
+                            onclick={() => { activeChannel = channel.name; page = 1; }}
+                            variant={activeChannel === channel.name ? 'default' : 'outline'}
+                            class="capitalize"
+                    >
+                        {channel.name}
+                    </Button>
+                {/each}
             </div>
         </Card.Header>
 
@@ -186,10 +188,10 @@
                     <Table.Row>
 
                         <!-- Level -->
-                        <Table.Head class="rounded-none! w-32 shrink-0">Level</Table.Head>
+                        <Table.Head class="rounded-none! w-40 shrink-0">Level</Table.Head>
 
                         <!-- Timestamp -->
-                        <Table.Head class="rounded-none! w-64 shrink-0">Time</Table.Head>
+                        <Table.Head class="rounded-none! w-80 shrink-0">Time</Table.Head>
 
                         <!-- Description -->
                         <Table.Head class="rounded-none!">Message</Table.Head>
@@ -197,11 +199,10 @@
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {#if initialData}
-                        {#if entries.length === 0}
+                    {#if !entries.length || entries.length === 0}
                             <Table.Row>
                                 <Table.Cell colspan={4} class="text-center py-8 text-muted-foreground">
-                                    {loading ? 'Loading…' : 'No log entries'}
+                                    No log entries
                                 </Table.Cell>
                             </Table.Row>
                         {:else}
@@ -233,34 +234,13 @@
                                 </Table.Row>
                             {/each}
                         {/if}
-                    {:else}
-                        {#each Array(5).fill(0) as _}
-                            <Table.Row>
-
-                                <!-- Level -->
-                                <Table.Cell>
-                                    <Skeleton class="h-4 w-16"/>
-                                </Table.Cell>
-
-                                <!-- Timestamp -->
-                                <Table.Cell>
-                                    <Skeleton class="h-4 w-32"/>
-                                </Table.Cell>
-
-                                <!-- Message -->
-                                <Table.Cell>
-                                    <Skeleton class="h-4 w-full"/>
-                                </Table.Cell>
-                            </Table.Row>
-                        {/each}
-                    {/if}
                 </Table.Body>
             </Table.Root>
         </Card.Content>
 
-        {#if total > perPage}
+        {#if total > 20}
             <Card.Footer class="justify-center border-t">
-                <Pagination.Root count={total} {perPage} bind:page>
+                <Pagination.Root count={total} perPage={20} bind:page>
                     {#snippet children({pages, currentPage})}
                         <Pagination.Content>
                             <Pagination.Item>

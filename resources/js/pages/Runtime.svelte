@@ -4,7 +4,6 @@
     import type {RuntimeData} from '$lib/types';
     import {Cpu} from 'lucide-svelte';
     import {Separator} from "$lib/components/ui/separator";
-    import {Skeleton} from '$lib/components/ui/skeleton';
 
     interface Props {
         initialData?: RuntimeData | null;
@@ -22,12 +21,14 @@
 </script>
 
 <section class="{className} h-full flex flex-col">
+
+    <h2 class="font-semibold text-foreground mb-4 flex items-center gap-2"><Cpu class="size-4"/>Runtime</h2>
+
     <Card.Root class="h-full">
         {#if initialData}
             <Card.Header>
                 <div class="flex items-center justify-between w-full">
                     <div class="flex items-center gap-2">
-                        <Cpu class="w-4 h-4 text-primary"/>
                         <span class="font-medium text-card-foreground">PHP {initialData?.phpVersion ?? '—'}</span>
                     </div>
                     <span class="text-muted-foreground  font-mono">{initialData?.sapi ?? ''}</span>
@@ -86,44 +87,6 @@
                             </div>
                         </div>
                     {/if}
-
-                </div>
-            </Card.Content>
-        {:else}
-            <Card.Header>
-                <div class="flex items-center justify-between w-full">
-                    <div class="flex items-center gap-2">
-                        <Cpu class="w-4 h-4 text-primary"/>
-                        <Skeleton class="h-4 w-24"/>
-                    </div>
-                    <Skeleton class="h-4 w-16"/>
-                </div>
-            </Card.Header>
-
-            <Card.Content class="p-6 h-full">
-                <div class="flex gap-8">
-
-                    <!-- Skeleton: left column (4 rows) -->
-                    <div class="space-y-4 flex-1">
-                        {#each Array(4).fill(0) as _}
-                            <div class="flex justify-between items-center">
-                                <Skeleton class="h-4 w-28"/>
-                                <Skeleton class="h-4 w-16"/>
-                            </div>
-                        {/each}
-                    </div>
-
-                    <Separator orientation="vertical" class="h-auto" />
-
-                    <!-- Skeleton: right column (5 rows matching OPcache section) -->
-                    <div class="space-y-4 flex-1">
-                        {#each Array(5).fill(0) as _}
-                            <div class="flex justify-between items-center">
-                                <Skeleton class="h-4 w-28"/>
-                                <Skeleton class="h-4 w-16"/>
-                            </div>
-                        {/each}
-                    </div>
 
                 </div>
             </Card.Content>

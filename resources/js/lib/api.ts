@@ -34,8 +34,8 @@ export async function fetchScheduler(): Promise<unknown> {
 
 // region --- Logs ----------------------------------------------------------------------------------------------------
 
-export async function fetchLogEntries(channel: string, page: number = 1, perPage: number = 25, level: string = ''): Promise<unknown> {
-    const params = new URLSearchParams({ page: String(page), perPage: String(perPage), level });
+export async function fetchLogEntries(channel: string, page: number = 1, level: string = ''): Promise<unknown> {
+    const params = new URLSearchParams({ page: String(page), level });
     const res = await fetch(`${base()}/logs/${encodeURIComponent(channel)}/entries?${params}`, {headers: headers()});
     return res.json();
 }

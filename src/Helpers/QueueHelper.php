@@ -2,6 +2,8 @@
 
 namespace Chrisquices\Sentinel\Helpers;
 
+use Carbon\Carbon;
+
 class QueueHelper
 {
     public static function decodePayload(string $rawPayload): array
@@ -19,7 +21,19 @@ class QueueHelper
     public static function formatDateTime(?string $datetime): string
     {
         if (!$datetime) return '—';
-        return date('Y-m-d h:i:s A', strtotime($datetime));
+
+        $dt = Carbon::parse($datetime);
+        $seconds = (int) abs($dt->diffInSeconds(now()));
+
+        if ($seconds < 60)      $rel = $seconds . 's ago';
+        elseif ($seconds < 3600)    $rel = floor($seconds / 60) . 'm ago';
+        elseif ($seconds < 86400)   $rel = floor($seconds / 3600) . 'h ago';
+        elseif ($seconds < 604800)  $rel = floor($seconds / 86400) . 'd ago';
+        elseif ($seconds < 2592000) $rel = floor($seconds / 604800) . 'w ago';
+        elseif ($seconds < 31536000) $rel = floor($seconds / 2592000) . 'mo ago';
+        else                        $rel = floor($seconds / 31536000) . 'y ago';
+
+        return $dt->format('M j, Y g:i A') . ' (' . $rel . ')';
     }
 
     public static function truncateException(string $exception, int $length = 120): string

@@ -93,11 +93,22 @@ class LogHelper
 
         try {
             $dt = Carbon::parse($timestamp);
-            $diff = $dt->diffForHumans();
-
-            return $dt->format('M j, Y g:i:s A') . ' (' . $diff . ')';
+            return $dt->format('M j, Y g:i:s A') . ' (' . self::shortRelative($dt) . ')';
         } catch (\Exception) {
             return $timestamp;
         }
+    }
+
+    private static function shortRelative(Carbon $dt): string
+    {
+        $seconds = (int) abs($dt->diffInSeconds(now()));
+
+        if ($seconds < 60)   return $seconds . 's ago';
+        if ($seconds < 3600) return floor($seconds / 60) . 'm ago';
+        if ($seconds < 86400) return floor($seconds / 3600) . 'h ago';
+        if ($seconds < 604800) return floor($seconds / 86400) . 'd ago';
+        if ($seconds < 2592000) return floor($seconds / 604800) . 'w ago';
+        if ($seconds < 31536000) return floor($seconds / 2592000) . 'mo ago';
+        return floor($seconds / 31536000) . 'y ago';
     }
 }
