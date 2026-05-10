@@ -84,6 +84,7 @@
     let entries = $state<LogEntry[]>([]);
     let tailCursor = $state<number>(0);
     let total = $state<number>(0);
+    let perPage = $state<number>(initialData?.perPage ?? 15);
     let loading = $state(false);
     let page = $state(1);
 
@@ -102,6 +103,7 @@
                 entries = initialData.entries;
                 tailCursor = initialData.tailCursor;
                 total = initialData.total;
+                perPage = initialData.perPage;
                 initialDataConsumed = true;
                 return;
             }
@@ -119,6 +121,7 @@
             entries = result.entries;
             total = result.total;
             tailCursor = result.tailCursor;
+            perPage = result.perPage;
         } finally {
             if (seq === fetchSeq) loading = false;
         }
@@ -238,9 +241,9 @@
             </Table.Root>
         </Card.Content>
 
-        {#if total > 20}
+        {#if total > perPage}
             <Card.Footer class="justify-center border-t">
-                <Pagination.Root count={total} perPage={20} bind:page>
+                <Pagination.Root count={total} {perPage} bind:page>
                     {#snippet children({pages, currentPage})}
                         <Pagination.Content>
                             <Pagination.Item>

@@ -127,6 +127,7 @@ export interface LogInitialData {
     entries: LogEntry[];
     total: number;
     tailCursor: number;
+    perPage: number;
 }
 
 export interface LogChannel {
@@ -147,6 +148,7 @@ export interface LogEntriesResult {
     entries: LogEntry[];
     total: number;
     tailCursor: number;
+    perPage: number;
 }
 
 export interface LogTailResult {

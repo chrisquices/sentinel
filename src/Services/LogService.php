@@ -20,10 +20,11 @@ class LogService
         $logs = self::getLogs($first, 1, null);
 
         return [
-            'channels' => $channels,
-            'entries' => $logs['entries'],
-            'total' => $logs['total'],
+            'channels'  => $channels,
+            'entries'   => $logs['entries'],
+            'total'     => $logs['total'],
             'tailCursor' => $logs['tailCursor'],
+            'perPage'   => $logs['perPage'],
         ];
     }
 
@@ -144,15 +145,17 @@ class LogService
     {
         $channelConfig = self::getChannelByName($channel);
 
+        $perPage = config('sentinel.pagination', 15);
+
         if (!$channelConfig || !file_exists($channelConfig['path'])) {
-            return ['entries' => [], 'total' => 0, 'tailCursor' => 0];
+            return ['entries' => [], 'total' => 0, 'tailCursor' => 0, 'perPage' => $perPage];
         }
 
         $path     = $channelConfig['path'];
         $fileSize = filesize($path);
 
         if ($fileSize === 0) {
-            return ['entries' => [], 'total' => 0, 'tailCursor' => 0];
+            return ['entries' => [], 'total' => 0, 'tailCursor' => 0, 'perPage' => $perPage];
         }
 
         $allOffsets = self::getLogIndex($channel, $path, $channelConfig['driver']);
@@ -162,17 +165,17 @@ class LogService
             ? array_values(array_filter($allOffsets, fn($o) => $o['level'] === strtolower($level)))
             : $allOffsets;
 
-        $total       = count($filtered);
-        $reversed    = array_reverse($filtered);
-        $pageOffsets = array_slice($reversed, ($page - 1) * 20, 20);
+        $total    = count($filtered);
+        $reversed = array_reverse($filtered);
+        $pageOffsets = array_slice($reversed, ($page - 1) * $perPage, $perPage);
 
         if (empty($pageOffsets)) {
-            return ['entries' => [], 'total' => $total, 'tailCursor' => $fileSize];
+            return ['entries' => [], 'total' => $total, 'tailCursor' => $fileSize, 'perPage' => $perPage];
         }
 
         $handle = fopen($path, 'rb');
         if (!$handle) {
-            return ['entries' => [], 'total' => $total, 'tailCursor' => $fileSize];
+            return ['entries' => [], 'total' => $total, 'tailCursor' => $fileSize, 'perPage' => $perPage];
         }
 
         $allOffsetsFlat = array_column($allOffsets, 'offset');
@@ -198,6 +201,7 @@ class LogService
             'entries'    => $entries,
             'total'      => $total,
             'tailCursor' => $fileSize,
+            'perPage'    => $perPage,
         ];
     }
 
