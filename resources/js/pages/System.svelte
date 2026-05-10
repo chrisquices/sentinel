@@ -118,7 +118,7 @@
 
 <section class={className}>
 
-    <h2 class="font-semibold text-foreground mb-4 flex items-center gap-2"><Monitor class="size-4"/>System</h2>
+    <h2 class="font-semibold text-foreground mb-4 flex items-center gap-2"><Monitor class="size-4"/>Systems</h2>
 
     <!-- System -->
     <Card.Root>
