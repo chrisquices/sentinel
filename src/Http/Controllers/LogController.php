@@ -24,10 +24,11 @@ class LogController extends Controller
             return response()->json(['error' => 'Invalid channel name.'], 400);
         }
 
-        $page  = (int) $request->query('page', 1);
-        $level = $request->query('level') ?: null;
+        $page   = (int) $request->query('page', 1);
+        $level  = $request->query('level') ?: null;
+        $search = $request->query('search') ?: null;
 
-        return response()->json(LogService::getLogs($channel, $page, $level));
+        return response()->json(LogService::getLogs($channel, $page, $level, $search));
     }
 
     public function tail(Request $request, string $channel)

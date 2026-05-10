@@ -39,8 +39,8 @@ export async function fetchLogs(): Promise<unknown> {
     return res.json();
 }
 
-export async function fetchLogEntries(channel: string, page: number = 1, level: string = ''): Promise<unknown> {
-    const params = new URLSearchParams({ page: String(page), level });
+export async function fetchLogEntries(channel: string, page: number = 1, level: string = '', search: string = ''): Promise<unknown> {
+    const params = new URLSearchParams({ page: String(page), level, search });
     const res = await fetch(`${base()}/logs/${encodeURIComponent(channel)}/entries?${params}`, {headers: headers()});
     return res.json();
 }

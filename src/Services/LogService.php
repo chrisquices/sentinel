@@ -143,7 +143,7 @@ class LogService
         return $offsets;
     }
 
-    public static function getLogs(string $channel, int $page, ?string $level): array
+    public static function getLogs(string $channel, int $page, ?string $level, ?string $search = null): array
     {
         $channelConfig = self::getChannelByName($channel);
 
@@ -167,31 +167,59 @@ class LogService
             ? array_values(array_filter($allOffsets, fn($o) => $o['level'] === strtolower($level)))
             : $allOffsets;
 
-        $total    = count($filtered);
-        $reversed = array_reverse($filtered);
-        $pageOffsets = array_slice($reversed, ($page - 1) * $perPage, $perPage);
-
-        if (empty($pageOffsets)) {
-            return ['entries' => [], 'total' => $total, 'tailCursor' => $fileSize, 'perPage' => $perPage];
-        }
+        $reversed       = array_reverse($filtered);
+        $allOffsetsFlat = array_column($allOffsets, 'offset');
 
         $handle = fopen($path, 'rb');
         if (!$handle) {
-            return ['entries' => [], 'total' => $total, 'tailCursor' => $fileSize, 'perPage' => $perPage];
+            return ['entries' => [], 'total' => count($filtered), 'tailCursor' => $fileSize, 'perPage' => $perPage];
         }
 
-        $allOffsetsFlat = array_column($allOffsets, 'offset');
-        $entries        = [];
+        // When searching, parse all candidates to filter on message content
+        if ($search !== null && $search !== '') {
+            $matched = [];
+
+            foreach ($reversed as $item) {
+                $offset     = $item['offset'];
+                $position   = array_search($offset, $allOffsetsFlat);
+                $nextOffset = $allOffsets[$position + 1]['offset'] ?? $fileSize;
+
+                fseek($handle, $offset);
+                $parsed = LogHelper::parseChunk(fread($handle, $nextOffset - $offset), $channelConfig['driver']);
+
+                if (!empty($parsed) && stripos($parsed[0]['message'] ?? '', $search) !== false) {
+                    $matched[] = $parsed[0];
+                }
+            }
+
+            fclose($handle);
+
+            return [
+                'entries'    => array_slice($matched, ($page - 1) * $perPage, $perPage),
+                'total'      => count($matched),
+                'tailCursor' => $fileSize,
+                'perPage'    => $perPage,
+            ];
+        }
+
+        // Standard path: paginate at offset level, then parse only the page
+        $pageOffsets = array_slice($reversed, ($page - 1) * $perPage, $perPage);
+
+        if (empty($pageOffsets)) {
+            fclose($handle);
+            return ['entries' => [], 'total' => count($filtered), 'tailCursor' => $fileSize, 'perPage' => $perPage];
+        }
+
+        $entries = [];
 
         foreach ($pageOffsets as $item) {
-            $offset   = $item['offset'];
-            $position = array_search($offset, $allOffsetsFlat);
+            $offset     = $item['offset'];
+            $position   = array_search($offset, $allOffsetsFlat);
             $nextOffset = $allOffsets[$position + 1]['offset'] ?? $fileSize;
 
             fseek($handle, $offset);
-            $chunk = fread($handle, $nextOffset - $offset);
+            $parsed = LogHelper::parseChunk(fread($handle, $nextOffset - $offset), $channelConfig['driver']);
 
-            $parsed = LogHelper::parseChunk($chunk, $channelConfig['driver']);
             if (!empty($parsed)) {
                 $entries[] = $parsed[0];
             }
@@ -201,7 +229,7 @@ class LogService
 
         return [
             'entries'    => $entries,
-            'total'      => $total,
+            'total'      => count($filtered),
             'tailCursor' => $fileSize,
             'perPage'    => $perPage,
         ];

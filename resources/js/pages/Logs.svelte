@@ -89,6 +89,7 @@
     let perPage = $state<number>(initialData?.perPage ?? 15);
     let loading = $state(false);
     let page = $state(1);
+    let search = $state('');
 
     let initialDataConsumed = false;
     let fetchSeq = 0;
@@ -97,11 +98,12 @@
         const ch = activeChannel;
         const lvl = activeLevel;
         const pg = page;
+        const q = search;
 
         if (!ch) return;
 
         untrack(() => {
-            if (!initialDataConsumed && initialData && lvl === '' && pg === 1 && ch === channels[0]?.name) {
+            if (!initialDataConsumed && initialData && lvl === '' && pg === 1 && q === '' && ch === channels[0]?.name) {
                 entries = initialData.entries;
                 tailCursor = initialData.tailCursor;
                 total = initialData.total;
@@ -110,15 +112,15 @@
                 return;
             }
             entries = [];
-            void loadEntries(ch, pg, lvl);
+            void loadEntries(ch, pg, lvl, q);
         });
     });
 
-    async function loadEntries(ch: string, pg: number, lvl: string) {
+    async function loadEntries(ch: string, pg: number, lvl: string, q: string = '') {
         const seq = ++fetchSeq;
         loading = true;
         try {
-            const result = await fetchLogEntries(ch, pg, lvl) as LogEntriesResult;
+            const result = await fetchLogEntries(ch, pg, lvl, q) as LogEntriesResult;
             if (seq !== fetchSeq) return;
             entries = result.entries;
             total = result.total;
@@ -130,7 +132,7 @@
     }
 
     function refresh() {
-        void loadEntries(activeChannel, page, activeLevel);
+        void loadEntries(activeChannel, page, activeLevel, search);
     }
 
     // endregion
@@ -182,9 +184,13 @@
                     </Select.Content>
                 </Select.Root>
 
-                <div class="w-56">
+                <div class="w-64">
                     <InputGroup.Root>
-                        <InputGroup.Input placeholder="Search in logs..." />
+                        <InputGroup.Input
+                            placeholder="Search in logs..."
+                            value={search}
+                            oninput={(e) => { search = e.currentTarget.value; page = 1; }}
+                        />
                         <InputGroup.Addon>
                             <Search class="size-4 shrink-0" />
                         </InputGroup.Addon>
