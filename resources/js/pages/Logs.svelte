@@ -163,7 +163,7 @@
                 {/each}
             </ButtonGroup.Root>
 
-            <div class="flex flex-wrap gap-2 w-full">
+            <div class="flex flex-wrap gap-2">
 
                 <!-- Refresh Log -->
                 <Button variant="secondary" onclick={refresh} disabled={loading}>
@@ -172,7 +172,7 @@
 
                 <!-- Channel Selector -->
                 <Select.Root type="single" value={activeChannel} onValueChange={(v) => { activeChannel = v; page = 1; }}>
-                    <Select.Trigger class="w-[180px] capitalize">{activeChannel}</Select.Trigger>
+                    <Select.Trigger class="w-64 capitalize">{activeChannel}</Select.Trigger>
                     <Select.Content>
                         {#each channels as channel}
                             <Select.Item value={channel.name} class="capitalize">{channel.name}</Select.Item>
