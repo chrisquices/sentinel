@@ -57,12 +57,13 @@
 />
 
 {#if ready}
-<div class="h-screen w-full flex flex-col overflow-hidden transition-colors duration-200 bg-background">
+<div class="min-h-screen 3xl:h-screen w-full flex flex-col 3xl:overflow-hidden transition-colors duration-200 bg-background">
     <Topbar {projectName}/>
-    <div class="flex-1 flex flex-col 2xl:flex-row overflow-hidden">
+    <div class="flex-1 flex flex-col 3xl:flex-row 3xl:overflow-hidden">
 
-        <!-- Left panel -->
-        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+        <!-- Left panel / main content -->
+        <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6
+                    3xl:max-w-none 3xl:mx-0 3xl:flex-1 3xl:overflow-y-auto 3xl:px-6 3xl:py-6">
             <div class="grid grid-cols-1 lg:grid-cols-6 gap-6 items-stretch">
                 <System initialData={systemData} class="lg:col-span-2 h-full"/>
                 <Runtime initialData={runtimeData} class="lg:col-span-4 h-full"/>
@@ -72,7 +73,8 @@
         </div>
 
         <!-- Right panel: Logs -->
-        <div class="2xl:w-1/2 2xl:border-l flex flex-col overflow-hidden p-6">
+        <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16
+                    3xl:max-w-none 3xl:mx-0 3xl:w-1/2 3xl:border-l 3xl:flex 3xl:flex-col 3xl:overflow-hidden 3xl:p-6">
             <Logs initialData={logsData}/>
         </div>
 
