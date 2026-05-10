@@ -136,7 +136,7 @@
         </Card.Header>
 
         <Card.Content class="p-0 overflow-hidden 3xl:flex-1">
-            <div class="overflow-y-auto max-h-80 3xl:max-h-none 3xl:h-full">
+            <div class="overflow-y-auto max-h-80 3xl:max-h-none 3xl:h-full [&_[data-slot='table-container']]:h-full">
 
                 <!-- Jobs -->
                 <Table.Root class="h-full">
