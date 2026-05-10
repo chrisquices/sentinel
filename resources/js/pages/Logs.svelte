@@ -144,7 +144,10 @@
 
 <section>
 
-    <h2 class="font-semibold text-foreground mb-4 flex items-center gap-2"><ScrollText class="size-4"/>Logs</h2>
+    <h2 class="font-semibold text-foreground mb-4 flex items-center gap-2">
+        <ScrollText class="size-4"/>
+        Logs
+    </h2>
 
     <Card.Root>
         <Card.Header>
@@ -174,7 +177,8 @@
                 </Button>
 
                 <!-- Channel Selector -->
-                <Select.Root type="single" value={activeChannel} onValueChange={(v) => { activeChannel = v; page = 1; }}>
+                <Select.Root type="single" value={activeChannel}
+                             onValueChange={(v) => { activeChannel = v; page = 1; }}>
                     <Select.Trigger class="w-36 capitalize">{activeChannel}</Select.Trigger>
                     <Select.Content>
                         {#each channels as channel}
@@ -186,12 +190,12 @@
                 <div class="w-64">
                     <InputGroup.Root>
                         <InputGroup.Input
-                            placeholder="Search in logs..."
-                            value={search}
-                            oninput={(e) => { search = e.currentTarget.value; page = 1; }}
+                                placeholder="Search in logs..."
+                                value={search}
+                                oninput={(e) => { search = e.currentTarget.value; page = 1; }}
                         />
                         <InputGroup.Addon>
-                            <Search class="size-4 shrink-0" />
+                            <Search class="size-4 shrink-0"/>
                         </InputGroup.Addon>
                     </InputGroup.Root>
                 </div>
@@ -199,24 +203,24 @@
         </Card.Header>
 
         <Card.Content class="p-0 overflow-hidden">
-            <div class="h-[680px] overflow-y-auto">
-            <Table.Root>
-                <Table.Header>
-                    <Table.Row>
+            <div class="h-200 overflow-y-auto">
+                <Table.Root>
+                    <Table.Header>
+                        <Table.Row>
 
-                        <!-- Level -->
-                        <Table.Head class="rounded-none! w-40 shrink-0">Level</Table.Head>
+                            <!-- Level -->
+                            <Table.Head class="rounded-none! w-40 shrink-0">Level</Table.Head>
 
-                        <!-- Timestamp -->
-                        <Table.Head class="rounded-none! w-80 shrink-0">Time</Table.Head>
+                            <!-- Timestamp -->
+                            <Table.Head class="rounded-none! w-80 shrink-0">Time</Table.Head>
 
-                        <!-- Description -->
-                        <Table.Head class="rounded-none!">Message</Table.Head>
+                            <!-- Description -->
+                            <Table.Head class="rounded-none!">Message</Table.Head>
 
-                    </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                    {#if !entries.length || entries.length === 0}
+                        </Table.Row>
+                    </Table.Header>
+                    <Table.Body>
+                        {#if !entries.length || entries.length === 0}
                             <Table.Row>
                                 <Table.Cell colspan={4} class="text-center py-8 text-muted-foreground">
                                     No log entries
@@ -251,8 +255,8 @@
                                 </Table.Row>
                             {/each}
                         {/if}
-                </Table.Body>
-            </Table.Root>
+                    </Table.Body>
+                </Table.Root>
             </div>
         </Card.Content>
 
