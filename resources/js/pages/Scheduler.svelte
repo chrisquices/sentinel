@@ -3,8 +3,7 @@
     import * as Card from '$lib/components/ui/card';
     import * as Table from '$lib/components/ui/table';
     import {Badge} from '$lib/components/ui/badge';
-    import type {SchedulerInitialData, SchedulerData, SchedulerTask} from '$lib/types';
-    import {fetchScheduler} from '$lib/api';
+    import type {SchedulerInitialData, SchedulerTask} from '$lib/types';
     import {CalendarClock} from 'lucide-svelte';
 
     interface Props {
@@ -50,16 +49,7 @@
             now = Date.now();
         }, 1000);
 
-        const ms = (initialData?.pollInterval ?? 10) * 1000;
-        const pollInterval = setInterval(async () => {
-            const res = await fetchScheduler() as SchedulerData;
-            tasks = res.events ?? [];
-        }, ms);
-
-        return () => {
-            clearInterval(clockInterval);
-            clearInterval(pollInterval);
-        };
+        return () => clearInterval(clockInterval);
     });
     // endregion
 </script>

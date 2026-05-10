@@ -15,14 +15,4 @@ return [
      */
     'poll_interval' => 3,
 
-    /*
-     * How often (in seconds) the frontend polls the scheduler endpoint.
-     */
-    'scheduler_poll_interval' => 10,
-
-    /*
-     * Published asset version string — appended as ?v= to CSS/JS URLs to bust caches after updates.
-     */
-    'version' => '1.0.0',
-
 ];

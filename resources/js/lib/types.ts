@@ -62,12 +62,10 @@ export interface OpcacheInfo {
 // Scheduler
 export interface SchedulerInitialData {
     events: SchedulerTask[];
-    pollInterval: number;
 }
 
 export interface SchedulerData {
     events: SchedulerTask[];
-    pollInterval: number;
 }
 
 export interface SchedulerTask {

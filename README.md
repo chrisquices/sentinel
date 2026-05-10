@@ -78,12 +78,6 @@ return [
 
     // How often (seconds) the frontend polls the queue and log tail endpoints
     'poll_interval' => 3,
-
-    // How often (seconds) the frontend polls the scheduler endpoint
-    'scheduler_poll_interval' => 10,
-
-    // Appended as ?v= to published CSS/JS URLs — increment after publishing new assets
-    'version' => '1.0.0',
 ];
 ```
 
@@ -139,7 +133,7 @@ Lists all commands registered in the Laravel console kernel. For each task:
 - Live countdown to the next run (updates every second)
 - Last ran time and exit status (success / failed / never run)
 
-Run history is stored in the `sentinel_scheduler_runs` table and persists across deployments. The frontend polls on the configured `scheduler_poll_interval`.
+Run history is stored in the `sentinel_scheduler_runs` table and persists across deployments.
 
 ### Queue
 
@@ -199,4 +193,4 @@ composer update chrisquices/sentinel
 php artisan vendor:publish --tag=sentinel --force
 ```
 
-After publishing new assets, increment the `version` key in `config/sentinel.php` to bust browser caches.
+Published assets include a `filemtime`-based cache-busting query string automatically — no manual versioning required.
